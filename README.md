@@ -1,532 +1,169 @@
-# 🚀 Connext — Academic Collaboration Platform
+# Connext 🚀
 
-> **Connect. Collaborate. Contribute. Grow.**
+> **Ask without fear. Get known for what you give.**
 
-Connext is an **AI-powered academic collaboration platform** designed to connect **students, faculty, researchers, and mentors** beyond individual campuses.
+**Connext** is a nationwide, unified academic collaboration and learning network for students, faculty, researchers, and mentors across India. Built to bridge campus silos, Connext combines verified-anonymous Q&A, AI-powered teammate & mentor matching, outcome-based gamified credits, and a dual-identity system (**Vibe** vs **Pro**) backed by a **Proof-of-Contribution Graph**.
 
-It brings academic identity, collaboration, projects, research, mentorship, communities, and achievements into one unified platform.
-
-Instead of students having their academic work scattered across WhatsApp, Discord, LinkedIn, GitHub, and research platforms, Connext creates a single **Academic Passport** that represents their skills and verified contributions.
-
----
-
-## 🎯 Problem Statement
-
-Academic collaboration is fragmented across multiple platforms.
-
-Students often face problems such as:
-
-- Difficulty finding the right teammates for projects
-- Difficulty finding suitable mentors
-- Hesitation to ask academic questions
-- Academic achievements spread across different platforms
-- No single profile representing their actual academic contributions
-- Limited collaboration opportunities outside their own campus
-
-Connext aims to solve these problems through one unified academic ecosystem.
+Developed by **Team DarkShield** for **RepoForge 2026** (*XIE – CSI Student Chapter*).
+**Problem Statement No.:** 004 – *Nationwide Student & Staff Collaboration Portal*.
 
 ---
 
-# 💡 Proposed Solution
+## 👥 Team DarkShield
 
-Connext provides three major pillars:
+* **Team Leader:** Ritesh Gharat
+* **Team Members:**
+  * Tanmay Vijay Kudkar
+  * Atharva Mangesh Raut
+  * Ved Kumare
+* **Institution & Event:** Xavier Institute of Engineering (XIE) – CSI Student Chapter (RepoForge 2026)
+
+---
+
+## ❓ The Problem
+
+Academic collaboration in higher education is fragmented across classrooms, WhatsApp/Telegram groups, Discord, LinkedIn, GitHub, and scattered research platforms:
+- **Hesitation to Ask:** Students often fear judgment when asking basic or complex doubts in class or open forums.
+- **Siloed Teams:** Finding the right project teammates or cross-campus mentors with complementary skills is difficult.
+- **Disjointed Identities:** There is no single verified academic profile that showcases a student's real contributions, publications, code repositories, and peer-help outcomes.
+
+---
+
+## 💡 The Solution & 3 Pillars
+
+Connext provides a single contribution and collaboration layer for academic life:
+
+```
+                          ┌────────────────────────┐
+                          │   ACADEMIC PASSPORT    │
+                          │ Verified Identity &    │
+                          │ Proof of Contribution  │
+                          └───────────┬────────────┘
+                                      │
+               ┌──────────────────────┴──────────────────────┐
+               ▼                                             ▼
+┌─────────────────────────────┐               ┌─────────────────────────────┐
+│     SMART COLLABORATION     │               │  CONTRIBUTION & COMMUNITY   │
+│ AI-Powered Team & Mentor    │               │  Verified-Anonymous Q&A,   │
+│ Matching + Skill Graph      │               │  Outcome Credits & Guilds   │
+└─────────────────────────────┘               └─────────────────────────────┘
+```
 
 ### 1. 🎓 Academic Passport
+Combines verified education, skills, projects, achievements, GitHub repositories, ORCID research data, and simulated LinkedIn/ResearchGate profiles into **one unified academic identity**.
 
-A unified academic identity containing:
+### 2. 🤖 Smart Collaboration & Proof-of-Contribution Graph
+- **AI Matchmaker:** Recommends relevant questions, project collaborators, mentors, and academic communities based on skill vectors, interests, and syllabus requirements.
+- **Proof-of-Contribution Graph:** Connects `Skills → Projects → Contributions → Repositories → Research → Achievements`, building a profile based on verifiable evidence rather than surface popularity.
 
-- Education
-- Skills
-- Projects
-- Achievements
-- GitHub contributions
-- Research
-- Verified profiles
-
-The goal is to create a profile based on **actual academic work and evidence** rather than popularity.
-
-### 2. 🤖 Smart Collaboration
-
-AI-powered matching recommends:
-
-- Relevant teammates
-- Mentors
-- Projects
-- Research opportunities
-- Communities
-- Questions and discussions
-
-Recommendations are based on skills, interests, requirements, and semantic similarity.
-
-### 3. 🌐 Contribution & Community
-
-Users can:
-
-- Ask and answer questions
-- Join cross-campus communities
-- Create and join projects
-- Collaborate with other students
-- Track project milestones
-- Earn XP
-- Build reputation
-- Maintain streaks
-- Unlock achievements
+### 3. 🏆 Contribution & Community
+- **Verified-Anonymous Asking:** Students can post questions anonymously (verified by college email). Peer helpers never see personal handles; askers can reveal their identity later to claim credit.
+- **Outcome-Based Credits:** Credits are awarded when the asker confirms *"This unblocked me"*, when code milestones are accepted, or when mentoring is verified. Upvotes are weighted with anti-collusion caps.
+- **Gamified Dashboard:** Features XP, level progression, daily quests, streak flames, achievement badges, and heatmaps to transform learning into measurable contribution.
 
 ---
 
-# ⭐ Key Innovation — Proof-of-Contribution Graph
+## 🎨 Dual Identity: Vibe vs Pro Mode
 
-The main innovation of Connext is the **Proof-of-Contribution Graph**.
+Connext features a seamless, 200ms crossfade identity toggle allowing users to adapt their experience:
 
-Instead of simply claiming:
+| Feature | ⚡ Vibe Mode (Gen Z / Student) | 💼 Pro Mode (Faculty / Professional / CV) |
+| :--- | :--- | :--- |
+| **Target Audience** | Undergraduates, peer collaborators, study guilds | Faculty, researchers, mentors, recruiters |
+| **Aesthetics** | Dynamic themes, custom avatars, larger radius, expressive copy | Clean CV-style layout, neutral palette, structured cards |
+| **Surfaced Highlights**| Streaks, XP, guild badges, active project posts | Publications, ORCID, research papers, department credentials |
 
-> "I know Python."
+---
 
-Connext can connect evidence of that skill:
+## 🛠️ Technical Stack & Architecture
 
+### High-Level Architecture
 ```text
-Skills
-   ↓
-Projects
-   ↓
-Contributions
-   ↓
-Repositories
-   ↓
-Research
-   ↓
-Achievements
+                          Browser (Next.js 14 / React / TypeScript)
+                                         │
+                                   REST / WS / SSE
+                                         │
+                               FastAPI / Node.js Backend
+                                         │
+     ┌───────────────────┬───────────────┴───────────────┬──────────────────┐
+     ▼                   ▼                               ▼                  ▼
+Identity Service    Community Service            Contribution Engine    AI Engine
+(Auth & Passport)   (Channels & Threads)         (Credits & Quests)     (pgvector & Matching)
+     │                   │                               │                  │
+     └───────────────────┴───────────────┬───────────────┴──────────────────┘
+                                         │
+                     PostgreSQL + pgvector (Optional Redis Cache)
 ```
 
-This creates an **evidence-based academic profile**.
-
-The profile therefore focuses on what a user has actually built, contributed to, researched, or achieved.
+### Stack Components
+- **Frontend:** Next.js (App Router), React, TypeScript, Tailwind CSS, shadcn/ui, Framer Motion, Leaflet / MapLibre (Connection Map).
+- **Backend:** FastAPI (Python) / Node.js with REST APIs and WebSockets/SSE for real-time notifications.
+- **Database:** PostgreSQL with `pgvector` for semantic search and embeddings. Redis for caching & leaderboards.
+- **AI & ML:** LLM embedding models, cosine similarity matching for duplicate detection and candidate recommendation.
+- **Integrations:** GitHub OAuth, ORCID API, and simulated demo integration portals for LinkedIn & ResearchGate.
+- **Security & Deployment:** Docker, Cloudflare, GitHub Actions, OAuth2, JWT sessions, role-based access control (RBAC).
 
 ---
 
-# 🔄 How Connext Works
+## 🔄 End-to-End Workflow & Prototype Flow
 
 ```text
-Register
-   ↓
-Verify Institution
-   ↓
-Create Academic Passport
-   ↓
-Connect GitHub / LinkedIn / Research Profiles
-   ↓
-Build Skill Graph
-   ↓
-AI Discovery & Recommendations
-   ↓
-Find People / Projects / Mentors / Communities
-   ↓
-Collaborate
-   ↓
-Contribute
-   ↓
-Verify Contributions
-   ↓
-XP + Reputation + Streaks + Achievements
-   ↓
-Research / Mentorship / Career Opportunities
+1. Sign Up & Onboard ──► 2. Build Academic Passport ──► 3. AI Discovery & Matching
+   (Email OTP & College)     (Link GitHub / ORCID / Mock)  (Syllabus & Skill Vectors)
+                                                                     │
+                                                                     ▼
+6. Career & Research ◄── 5. Contribution Engine ◄─────── 4. Collaboration & Q&A
+   Opportunities            (XP, Streaks, Credits,          (Nested Threads & Anonymous
+                            Unblocked Milestones)            Doubt Radar for Staff)
+```
+
+### 🛰️ Special Feature: Staff "Doubt Radar"
+Allows faculty and mentors to view an anonymous, aggregated heat-map of concepts students struggle with, broken down by syllabus unit, enabling targeted academic support without invading student privacy.
+
+---
+
+## 📁 Repository Structure
+
+```text
+Connext/
+├── apps/
+│   ├── web/               # Next.js frontend application
+│   └── api/               # FastAPI / Node.js backend services
+├── docs/                  # Detailed design and product specifications
+│   ├── Connext.pdf        # RepoForge 2026 Presentation Deck
+│   ├── PRD.md             # Product Requirements Document
+│   ├── Architecture.md    # System Architecture & Schema Specification
+│   ├── Design.md          # UI/UX & Design Token System
+│   ├── Phases.md          # Development Roadmap & Sprint Milestones
+│   └── Connext_Idea.md    # Original Concept & Vision Specifications
+└── docker-compose.yml     # Local multi-container development environment
 ```
 
 ---
 
-# 🏗️ System Architecture
+## 🗺️ Roadmap & Build Phases
 
-```text
-                    ┌──────────────────────┐
-                    │        USERS         │
-                    │ Students / Faculty   │
-                    │ Mentors / Researchers│
-                    └──────────┬───────────┘
-                               │
-                               ▼
-                    ┌──────────────────────┐
-                    │      FRONTEND        │
-                    │ Next.js + React      │
-                    │ TypeScript + Tailwind│
-                    └──────────┬───────────┘
-                               │
-                         REST APIs
-                               │
-                               ▼
-                    ┌──────────────────────┐
-                    │       BACKEND        │
-                    │ Node.js + FastAPI    │
-                    │                      │
-                    │ Authentication       │
-                    │ User Profiles        │
-                    │ Collaboration        │
-                    │ Communities          │
-                    │ Contributions        │
-                    │ Opportunities        │
-                    └──────────┬───────────┘
-                               │
-             ┌─────────────────┼─────────────────┐
-             ▼                 ▼                 ▼
-      ┌─────────────┐   ┌─────────────┐   ┌─────────────┐
-      │ PostgreSQL  │   │    Redis    │   │  Vector DB  │
-      │             │   │             │   │             │
-      │ Users       │   │ Cache       │   │ Embeddings  │
-      │ Projects    │   │ Sessions    │   │ Semantic    │
-      │ Contributions│  │ Notifications│  │ Search      │
-      └─────────────┘   └─────────────┘   └──────┬──────┘
-                                                 │
-                                                 ▼
-                                        ┌─────────────────┐
-                                        │    AI ENGINE    │
-                                        │                 │
-                                        │ LLMs            │
-                                        │ Embeddings      │
-                                        │ Recommendations │
-                                        │ Matching        │
-                                        └─────────────────┘
-
-External Integrations:
-GitHub • LinkedIn • Google • ORCID • ResearchGate
-```
+- [x] **Phase 0: Foundations** – System architecture, design tokens, repository scaffolding.
+- [x] **Phase 1: Shell & Identity** – Multi-column layout, mock OTP auth, Vibe/Pro identity switch.
+- [ ] **Phase 2: Communities & Threads** – Nested comments, verified-anonymous Q&A, syllabus routing.
+- [ ] **Phase 3: Contribution Engine** – Outcome credit ledger, daily quests, streak tracker, dashboard.
+- [ ] **Phase 4: Academic Passport** – Mock LinkedIn/ResearchGate portals, GitHub/ORCID import.
+- [ ] **Phase 5: AI & Discovery** – `pgvector` deduplication, AI teammate matcher, Doubt Radar.
+- [ ] **Phase 6: Verification & Polish** – Golden demo path seeding, accessibility sweep, mobile pass.
 
 ---
 
-# 🛠️ Technology Stack
+## 📚 Research & References
 
-| Layer | Technology |
-|---|---|
-| Frontend | Next.js, React, TypeScript, Tailwind CSS |
-| Backend | Node.js, FastAPI |
-| API | REST APIs |
-| Database | PostgreSQL |
-| Caching | Redis |
-| AI | LLMs, Embeddings |
-| Semantic Search | Vector Database |
-| Integrations | GitHub, LinkedIn, Google, ORCID, ResearchGate |
-| Deployment | Docker, Cloudflare |
-| CI/CD | GitHub Actions |
+1. **APAAR (One Nation, One Student ID):** [apaar.education.gov.in](https://apaar.education.gov.in/about)
+2. **Stack Overflow Reputation System:** [stackoverflow.com/help/whats-reputation](https://stackoverflow.com/help/whats-reputation)
+3. **PLOS ONE Student Question-Participation Study:** [doi:10.1371/journal.pone.0243731](https://journals.plos.org/plosone/article?id=10.1371/journal.pone.0243731)
+4. **Student Team Formation Research:** [doi:10.1016/j.learninstruc.2024.101931](https://doi.org/10.1016/j.learninstruc.2024.101931)
+5. **Gamification & Student Engagement Review:** [doi:10.3389/feduc.2024.1466926](https://doi.org/10.3389/feduc.2024.1466926)
+6. **ORCID Persistent Researcher Identifier:** [orcid.org](https://orcid.org/)
 
 ---
 
-# 🖥️ Frontend
+## 📄 License & Attribution
 
-The frontend is the **user-facing layer** of Connext.
-
-It provides interfaces for:
-
-- User registration and login
-- Academic Passport
-- Profile management
-- Project discovery
-- AI recommendations
-- Collaboration
-- Q&A
-- Communities
-- Reputation and achievements
-- Research opportunities
-- Mentorship opportunities
-
-The frontend communicates with backend services through REST APIs.
-
----
-
-# ⚙️ Backend
-
-The backend handles the application's core business logic.
-
-Major backend services include:
-
-### Authentication Service
-- User authentication
-- OAuth
-- Institution verification
-- Role-based access
-
-### User & Profile Service
-- Academic Passport
-- Skills
-- Education
-- Profile integrations
-- Skill graph
-
-### Collaboration Service
-- Projects
-- Teams
-- Communication
-- Milestones
-
-### Community Service
-- Q&A
-- Discussions
-- Cross-campus guilds
-- Knowledge sharing
-- Moderation
-
-### Contribution & Reputation Service
-- Contribution verification
-- XP
-- Streaks
-- Achievements
-- Reputation
-- Proof-of-Contribution Graph
-
-### Opportunity Service
-- Research opportunities
-- Mentorship
-- Internships
-- Career opportunities
-
----
-
-# 🤖 AI & Smart Matching
-
-Connext uses **LLMs, embeddings, and vector search** to provide intelligent recommendations.
-
-### Example
-
-A student has:
-
-```text
-Skills:
-React
-Python
-Machine Learning
-
-Interests:
-Artificial Intelligence
-Web Development
-```
-
-The AI matching system can identify relevant:
-
-```text
-Students
-Projects
-Mentors
-Research
-Communities
-Questions
-```
-
-The goal is to provide meaningful recommendations based on skills, interests, and requirements.
-
----
-
-# 🔗 External Integrations
-
-Connext can connect with existing academic and professional platforms.
-
-### GitHub
-Used for repositories and development contributions.
-
-### LinkedIn
-Used for professional identity and profile information.
-
-### Google
-Used for authentication and account integration.
-
-### ORCID
-Used for researcher identity.
-
-### ResearchGate
-Used for research and publication-related information.
-
----
-
-# 🔐 Security & Privacy
-
-The proposed platform includes:
-
-- OAuth-based authentication
-- Role-based access control
-- Institution verification
-- Privacy controls
-- API security
-- Secure external integrations
-- Moderation mechanisms
-
-### Handling Fake Contributions
-
-A major challenge is fake projects, achievements, or credentials.
-
-Connext addresses this through:
-
-- Verified identity
-- Connected external profiles
-- Evidence-based profiles
-- Contribution verification
-- Reporting and moderation
-- Reputation systems
-
----
-
-# 📊 Core User Journey
-
-### Step 1 — Register
-
-Create an account and verify your institution.
-
-### Step 2 — Create Academic Passport
-
-Add education, skills, projects, achievements, and interests.
-
-### Step 3 — Connect Profiles
-
-Connect relevant GitHub, LinkedIn, ORCID, or research profiles.
-
-### Step 4 — Discover
-
-Explore:
-
-- People
-- Projects
-- Questions
-- Mentors
-- Communities
-- Research
-
-### Step 5 — Collaborate
-
-Create or join projects and work with other users.
-
-### Step 6 — Contribute
-
-Make measurable contributions to projects, discussions, research, or communities.
-
-### Step 7 — Build Reputation
-
-Verified contributions can contribute to:
-
-- XP
-- Reputation
-- Streaks
-- Achievements
-
-### Step 8 — Grow
-
-Discover research, mentorship, internships, competitions, and other opportunities.
-
----
-
-# 🌍 Impact
-
-Connext aims to break traditional campus boundaries by allowing students and academic communities to collaborate beyond their individual institutions.
-
-Potential benefits include:
-
-- Easier teammate discovery
-- Better access to mentors
-- Cross-campus collaboration
-- Improved academic networking
-- Better visibility of student projects
-- Research collaboration
-- Evidence-based academic profiles
-- Greater access to opportunities
-
----
-
-# ⚠️ Challenges
-
-The project identifies several important challenges:
-
-### User Adoption
-Creating an active community across multiple institutions.
-
-### Privacy & Security
-Protecting academic profiles and connected accounts.
-
-### Fake Contributions
-Preventing false projects, achievements, and credentials.
-
-### AI Accuracy
-Reducing incorrect AI recommendations and generated information.
-
----
-
-# 📈 Scalability
-
-Connext is designed with a modular architecture so that it can initially serve a small number of institutions and later expand to a larger academic network.
-
-A phased approach can be used:
-
-```text
-Pilot Institutions
-       ↓
-Test & Validate
-       ↓
-Improve Platform
-       ↓
-Expand Institutions
-       ↓
-Large Academic Network
-```
-
----
-
-# 🚀 Future Scope
-
-Possible future expansion includes:
-
-- More university integrations
-- Advanced AI matching
-- Research collaboration networks
-- Advanced contribution verification
-- Institution dashboards
-- Mentor verification
-- Academic recommendation systems
-- Internship and opportunity matching
-- Cross-campus competitions
-- Advanced analytics
-
----
-
-# 👥 Team
-
-### Team DarkShield
-
-**Team Leader**
-- Ritesh Gharat
-
-**Team Members**
-- Tanmay Vijay Kudkar
-- Atharva Mangesh Raut
-- Ved Kumare
-
-**Problem Statement:** 004
-
----
-
-# 📚 References
-
-The project proposal references resources including:
-
-- APAAR — One Nation, One Student ID
-- Stack Overflow — Reputation System
-- GitHub — Pull Requests & Collaboration
-- LinkedIn — Professional Identity
-- ResearchGate — Research Collaboration
-- ORCID — Researcher Identity
-- PLOS ONE — Student Question Participation Research
-- Learning and Instruction — Student Team Formation Research
-- Frontiers in Education — Gamification & Student Engagement
-- Discord — Community & Communication
-
----
-
-# 📌 Project Status
-
-**Status:** 🚧 Prototype / Development
-
-Connext is proposed as an AI-powered academic collaboration ecosystem combining academic identity, smart matching, collaboration, contribution verification, reputation, and opportunities.
-
----
-
-## ⭐ Vision
-
-> **Build a connected academic ecosystem where students are discovered not only by who they know, but by what they learn, build, contribute, and achieve.**
-
----
-
-### Built by Team DarkShield 🛡️
-
-**Connext — Connect. Collaborate. Contribute. Grow.**
+Built for **RepoForge 2026** by **Team DarkShield** (XIE – CSI Student Chapter). All rights reserv
