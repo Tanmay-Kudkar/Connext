@@ -1,0 +1,99 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  backend:
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: pgvector/pgvector:pg16
+        env:
+          POSTGRES_USER: connext
+          POSTGRES_PASSWORD: connext
+          POSTGRES_DB: connext
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U connext"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 20
+    env:
+      DATABASE_URL: postgres://connext:connext@localhost:5432/connext
+      JWT_SECRET: ci-jwt-secret
+      EMBEDDING_BASE_URL: mock
+      EMBEDDING_MODEL: mock-hash
+      EMBEDDING_DIMENSIONS: "768"
+      DEMO_LOGINS: "true"
+      LOG_LEVEL: error
+    defaults:
+      run:
+        working-directory: backend
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: backend/package-lock.json
+      - run: npm ci
+      - run: npx tsc --noEmit
+      - run: npm test
+
+  frontend-e2e:
+    runs-on: ubuntu-latest
+    needs: backend
+    services:
+      postgres:
+        image: pgvector/pgvector:pg16
+        env:
+          POSTGRES_USER: connext
+          POSTGRES_PASSWORD: connext
+          POSTGRES_DB: connext
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U connext"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 20
+    env:
+      DATABASE_URL: postgres://connext:connext@localhost:5432/connext
+      JWT_SECRET: ci-jwt-secret
+      EMBEDDING_BASE_URL: mock
+      EMBEDDING_MODEL: mock-hash
+      EMBEDDING_DIMENSIONS: "768"
+      DEMO_LOGINS: "true"
+      API_INTERNAL_URL: http://127.0.0.1:3001
+      CI: "true"
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: |
+            backend/package-lock.json
+            frontend/package-lock.json
+      - name: Install API
+        working-directory: backend
+        run: npm ci
+      - name: Install web
+        working-directory: frontend
+        run: npm ci
+      - name: Install Playwright
+        working-directory: frontend
+        run: npx playwright install --with-deps chromium
+      - name: Typecheck web
+        working-directory: frontend
+        run: npx tsc --noEmit
+      - name: Seed database
+        working-directory: backend
+        run: npx tsx src/db/seed.ts
+      - name: Playwright golden path
+        working-directory: frontend
+        run: npx playwright test

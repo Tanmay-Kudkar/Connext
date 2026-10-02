@@ -1,139 +1,167 @@
 "use client";
-import { communities } from "@/lib/seed";
-import { useState } from "react";
-import { PlusCircle, Hash, Eye, EyeOff } from "lucide-react";
+
+import Link from "next/link";
+import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
+import { clientApi } from "@/lib/api";
+import type { Community, FeedPost } from "@/lib/types";
 
 export default function AskPage() {
+  const router = useRouter();
+  const [communities, setCommunities] = useState<Community[]>([]);
+  const [communitySlug, setCommunitySlug] = useState("");
+  const [title, setTitle] = useState("");
+  const [body, setBody] = useState("");
   const [anon, setAnon] = useState(true);
-  const [selectedCommunity, setSelectedCommunity] = useState("");
+  const [busy, setBusy] = useState(false);
+  const [error, setError] = useState("");
+  const [similar, setSimilar] = useState<FeedPost[]>([]);
+  const [similarBanner, setSimilarBanner] = useState("");
+
+  useEffect(() => {
+    clientApi<{ communities: Community[] }>("/api/communities")
+      .then((d) => {
+        setCommunities(d.communities);
+        if (d.communities[0]) setCommunitySlug(d.communities[0].slug);
+      })
+      .catch(() => setError("Could not load communities"));
+  }, []);
+
+  useEffect(() => {
+    if (title.trim().length < 3) {
+      setSimilar([]);
+      setSimilarBanner("");
+      return;
+    }
+    const controller = new AbortController();
+    const timer = window.setTimeout(async () => {
+      try {
+        const res = await fetch("/api/ai/similar-questions", {
+          method: "POST",
+          credentials: "include",
+          headers: { "content-type": "application/json" },
+          body: JSON.stringify({ title, body }),
+          signal: controller.signal,
+        });
+        const json = (await res.json()) as {
+          unavailable?: boolean;
+          message?: string;
+          results?: FeedPost[];
+        };
+        if (json.unavailable) {
+          setSimilarBanner(json.message ?? "Couldn't check similar threads. You can still post.");
+          setSimilar([]);
+        } else {
+          setSimilarBanner("");
+          setSimilar(json.results ?? []);
+        }
+      } catch (err) {
+        if ((err as { name?: string }).name === "AbortError") return;
+        setSimilarBanner("Couldn't check similar threads. You can still post.");
+      }
+    }, 400);
+    return () => {
+      window.clearTimeout(timer);
+      controller.abort();
+    };
+  }, [title, body]);
+
+  async function submit(e: React.FormEvent) {
+    e.preventDefault();
+    setBusy(true);
+    setError("");
+    try {
+      const res = await clientApi<{ post: FeedPost }>("/api/posts", {
+        method: "POST",
+        body: JSON.stringify({ communitySlug, title, body, anon, tags: [] }),
+      });
+      router.push(`/post/${res.post.id}`);
+      router.refresh();
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Could not post");
+    } finally {
+      setBusy(false);
+    }
+  }
 
   return (
-    <div className="mx-auto max-w-2xl px-4 sm:px-6 py-10">
-      <header className="mb-8">
+    <div>
+      <header className="mb-6">
         <h1 className="text-display">Ask a question</h1>
-        <p className="mt-2 text-small" style={{ color: "var(--text-muted)" }}>
-          Ask without fear — you&apos;re institution-verified but hidden from peers.
-          You can reveal later to claim credit.
+        <p className="mt-2 text-small text-muted">
+          Verified, but you can post anonymously. Similar threads appear as you type.
         </p>
       </header>
-
-      <form
-        className="flex flex-col gap-5"
-        onSubmit={e => e.preventDefault()}
-        aria-label="Ask a question form"
-      >
-        {/* Community selector */}
-        <div>
-          <label htmlFor="ask-community" className="block text-small font-semibold mb-2">
-            Community <span aria-hidden style={{ color: "var(--accent)" }}>*</span>
-          </label>
-          <select
-            id="ask-community"
-            required
-            value={selectedCommunity}
-            onChange={e => setSelectedCommunity(e.target.value)}
-            className="input-base"
-            style={{ cursor: "pointer" }}
-          >
-            <option value="" disabled hidden>Select a community…</option>
-            {communities.map(c => (
-              <option key={c.id} value={c.slug}>{c.name} — {c.category}</option>
-            ))}
-          </select>
-        </div>
-
-        {/* Title */}
-        <div>
-          <label htmlFor="ask-title" className="block text-small font-semibold mb-2">
-            Question title <span aria-hidden style={{ color: "var(--accent)" }}>*</span>
-          </label>
-          <input
-            id="ask-title"
-            type="text"
-            required
-            maxLength={200}
-            placeholder="Be specific — e.g. 'Why does Postgres ignore my index when the table has 50k rows?'"
-            className="input-base"
-          />
-        </div>
-
-        {/* Body */}
-        <div>
-          <label htmlFor="ask-body" className="block text-small font-semibold mb-2">Details</label>
-          <textarea
-            id="ask-body"
-            rows={6}
-            placeholder="Add context, code snippets, what you've already tried…"
-            className="input-base"
-            style={{ resize: "vertical" }}
-          />
-        </div>
-
-        {/* Tags */}
-        <div>
-          <label htmlFor="ask-tags" className="block text-small font-semibold mb-2">Tags</label>
-          <input
-            id="ask-tags"
-            type="text"
-            placeholder="e.g. PostgreSQL, indexing, query-planner (comma separated)"
-            className="input-base"
-          />
-        </div>
-
-        {/* Anonymous toggle */}
-        <div
-          className="flex items-center justify-between rounded-2xl p-4"
-          style={{ border: "1px solid var(--hairline)", background: "var(--surface)" }}
+      <form className="space-y-4" onSubmit={submit}>
+        <label className="block text-small font-semibold" htmlFor="community">
+          Community
+        </label>
+        <select
+          id="community"
+          className="input-base"
+          value={communitySlug}
+          onChange={(e) => setCommunitySlug(e.target.value)}
+          required
         >
-          <div className="flex items-center gap-3">
-            {anon
-              ? <EyeOff size={20} style={{ color: "var(--text-muted)" }} aria-hidden />
-              : <Eye size={20} style={{ color: "var(--accent)" }} aria-hidden />
-            }
-            <div>
-              <p className="text-small font-semibold">{anon ? "Posting anonymously" : "Posting as yourself"}</p>
-              <p className="text-small mt-0.5" style={{ color: "var(--text-muted)" }}>
-                {anon
-                  ? "Peers see 'Verified student'. Reveal later to claim credit."
-                  : "Your name and college will be visible to all."
-                }
-              </p>
-            </div>
+          {communities.map((c) => (
+            <option key={c.slug} value={c.slug}>
+              {c.name}
+            </option>
+          ))}
+        </select>
+        <label className="block text-small font-semibold" htmlFor="title">
+          Title
+        </label>
+        <input
+          id="title"
+          className="input-base"
+          value={title}
+          onChange={(e) => setTitle(e.target.value)}
+          minLength={8}
+          required
+          placeholder="Why does Postgres seq-scan my indexed email column?"
+        />
+        <label className="block text-small font-semibold" htmlFor="body">
+          Details
+        </label>
+        <textarea
+          id="body"
+          className="input-base min-h-[140px]"
+          value={body}
+          onChange={(e) => setBody(e.target.value)}
+          placeholder="What you already tried."
+        />
+        <label className="flex items-center gap-2 text-small">
+          <input type="checkbox" checked={anon} onChange={(e) => setAnon(e.target.checked)} />
+          Post anonymously
+        </label>
+        {similarBanner && (
+          <p className="text-small" role="status" style={{ color: "var(--warning)" }}>
+            {similarBanner}
+          </p>
+        )}
+        {similar.length > 0 && (
+          <div>
+            <div className="text-small font-semibold">Similar threads</div>
+            <ul className="mt-2 space-y-2">
+              {similar.map((p) => (
+                <li key={p.id}>
+                  <Link href={`/post/${p.id}`} className="text-small hover:underline">
+                    {p.title}
+                  </Link>
+                </li>
+              ))}
+            </ul>
           </div>
-          <button
-            type="button"
-            role="switch"
-            aria-checked={anon}
-            onClick={() => setAnon(!anon)}
-            className="relative h-6 w-11 rounded-full transition-colors"
-            style={{ background: anon ? "var(--text-muted)" : "var(--accent)", flexShrink: 0 }}
-            aria-label="Toggle anonymous posting"
-          >
-            <span
-              className="absolute top-0.5 left-0.5 h-5 w-5 rounded-full bg-white transition-transform"
-              style={{ transform: anon ? "translateX(0)" : "translateX(20px)" }}
-            />
-          </button>
-        </div>
-
-        {/* AI suggestions placeholder */}
-        <div
-          className="rounded-2xl p-4 text-small"
-          style={{ border: "1px dashed var(--hairline)", color: "var(--text-muted)" }}
-        >
-          💡 <strong>AI suggestion:</strong> As you type your title, similar questions will appear here.
-          Check before posting to avoid duplicates.
-        </div>
-
-        {/* Submit */}
-        <div className="flex items-center gap-3">
-          <button type="submit" id="ask-submit" className="btn-primary">
-            <PlusCircle size={16} aria-hidden /> Post question
-          </button>
-          <button type="button" className="btn-ghost" style={{ border: "1px solid var(--hairline)" }}>
-            Cancel
-          </button>
-        </div>
+        )}
+        {error && (
+          <p className="text-small" style={{ color: "var(--error)" }}>
+            {error}
+          </p>
+        )}
+        <button className="btn-primary" type="submit" disabled={busy}>
+          Post question
+        </button>
       </form>
     </div>
   );

@@ -83,7 +83,7 @@ Connext features a seamless, 200ms crossfade identity toggle allowing users to a
                                          │
                                    REST / WS / SSE
                                          │
-                               FastAPI / Node.js Backend
+                               Fastify (Node.js) Backend
                                          │
      ┌───────────────────┬───────────────┴───────────────┬──────────────────┐
      ▼                   ▼                               ▼                  ▼
@@ -96,12 +96,49 @@ Identity Service    Community Service            Contribution Engine    AI Engin
 ```
 
 ### Stack Components
-- **Frontend:** Next.js (App Router), React, TypeScript, Tailwind CSS, shadcn/ui, Framer Motion, Leaflet / MapLibre (Connection Map).
-- **Backend:** FastAPI (Python) / Node.js with REST APIs and WebSockets/SSE for real-time notifications.
-- **Database:** PostgreSQL with `pgvector` for semantic search and embeddings. Redis for caching & leaderboards.
-- **AI & ML:** LLM embedding models, cosine similarity matching for duplicate detection and candidate recommendation.
-- **Integrations:** GitHub OAuth, ORCID API, and simulated demo integration portals for LinkedIn & ResearchGate.
-- **Security & Deployment:** Docker, Cloudflare, GitHub Actions, OAuth2, JWT sessions, role-based access control (RBAC).
+- **Frontend:** Next.js 14 App Router, React, TypeScript, Tailwind CSS. `/api/*` is rewritten to Fastify so the session cookie lives on the web origin.
+- **Backend:** Fastify + Drizzle + Zod (TypeScript) on port 3001. Swagger at `/docs`.
+- **Database:** PostgreSQL 16 with `pgvector` (`pgvector/pgvector:pg16`).
+- **AI:** OpenAI-compatible embeddings client (`EMBEDDING_BASE_URL`, `EMBEDDING_MODEL`, `EMBEDDING_DIMENSIONS`). CI uses a mock hash embedder. Optional Ollama fallback.
+- **Integrations:** Simulated LinkedIn and ResearchGate portals at `/mock/linkedin` and `/mock/researchgate`.
+- **Security & Deployment:** Docker Compose, GitHub Actions, httpOnly JWT cookie (`connext_session`, `Path=/`, `SameSite=Lax`).
+
+---
+
+## ▶️ Run
+
+**Docker Compose (web, api, pgvector Postgres):**
+
+```bash
+docker compose up --build
+```
+
+App: http://localhost:3000 · API docs: http://localhost:3001/docs
+
+**Without Docker** (Postgres 16 + pgvector already running):
+
+```bash
+# API
+cd backend
+cp .env.example .env
+npm install
+npm run db:migrate
+npm run db:seed
+npm run dev
+
+# Web (another terminal)
+cd frontend
+npm install
+API_INTERNAL_URL=http://127.0.0.1:3001 npm run dev
+```
+
+Logged-out `/` is college-email entry. Demo OTP is `123456`. Development also has **Demo as student** (`tanmay@xie.edu.in`) and **Demo as faculty** (`priya.sharma@vjti.ac.in`) so Doubt Radar is reachable.
+
+Embeddings: set `EMBEDDING_BASE_URL` to an OpenAI-compatible `/v1` host, or leave `mock` for the hash embedder. Optional `EMBEDDING_FALLBACK_BASE_URL` (for example Ollama `http://localhost:11434/v1`). Startup refuses to boot if the returned vector length ≠ `EMBEDDING_DIMENSIONS`.
+
+**Tests:** `cd backend && npm test` (unit + Fastify/Postgres). `cd frontend && npx playwright test` (golden path). GitHub Actions runs both.
+
+**Demo reset:** `docker compose down -v` then `up` again. Or re-run `npm run db:seed`.
 
 ---
 
@@ -127,7 +164,7 @@ Allows faculty and mentors to view an anonymous, aggregated heat-map of concepts
 ```text
 Connext/
 ├── frontend/              # Next.js frontend application
-├── backend/               # FastAPI / Node.js backend services
+├── backend/               # Fastify + Drizzle + Zod API
 ├── docs/                  # Detailed design and product specifications
 │   ├── Connext.pdf        # RepoForge 2026 Presentation Deck
 │   ├── PRD.md             # Product Requirements Document
@@ -144,11 +181,11 @@ Connext/
 
 - [x] **Phase 0: Foundations** – System architecture, design tokens, repository scaffolding.
 - [x] **Phase 1: Shell & Identity** – Multi-column layout, mock OTP auth, Vibe/Pro identity switch.
-- [ ] **Phase 2: Communities & Threads** – Nested comments, verified-anonymous Q&A, syllabus routing.
-- [ ] **Phase 3: Contribution Engine** – Outcome credit ledger, daily quests, streak tracker, dashboard.
-- [ ] **Phase 4: Academic Passport** – Mock LinkedIn/ResearchGate portals, GitHub/ORCID import.
-- [ ] **Phase 5: AI & Discovery** – `pgvector` deduplication, AI teammate matcher, Doubt Radar.
-- [ ] **Phase 6: Verification & Polish** – Golden demo path seeding, accessibility sweep, mobile pass.
+- [x] **Phase 2: Communities & Threads** – Nested comments, verified-anonymous Q&A, syllabus routing.
+- [x] **Phase 3: Contribution Engine** – Outcome credit ledger, daily quests, streak tracker, dashboard.
+- [x] **Phase 4: Academic Passport** – Mock LinkedIn/ResearchGate portals (simulated).
+- [x] **Phase 5: AI & Discovery** – `pgvector` similar questions, teammate matcher, Doubt Radar, list-first map.
+- [x] **Phase 6: Verification & Polish** – Golden demo path seeding, Playwright, GitHub Actions.
 
 ---
 

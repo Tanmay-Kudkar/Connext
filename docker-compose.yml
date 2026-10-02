@@ -1,0 +1,56 @@
+services:
+  db:
+    image: pgvector/pgvector:pg16
+    environment:
+      POSTGRES_USER: connext
+      POSTGRES_PASSWORD: connext
+      POSTGRES_DB: connext
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U connext"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  api:
+    build: ./backend
+    environment:
+      DATABASE_URL: postgres://connext:connext@db:5432/connext
+      JWT_SECRET: connext-demo-jwt-secret
+      PORT: "3001"
+      DEMO_LOGINS: "true"
+      EMBEDDING_BASE_URL: mock
+      EMBEDDING_MODEL: mock-hash
+      EMBEDDING_DIMENSIONS: "768"
+      EMBEDDING_API_KEY: ""
+      EMBEDDING_FALLBACK_BASE_URL: ${EMBEDDING_FALLBACK_BASE_URL:-}
+      EMBEDDING_FALLBACK_API_KEY: ${EMBEDDING_FALLBACK_API_KEY:-}
+      EMBEDDING_FALLBACK_MODEL: ${EMBEDDING_FALLBACK_MODEL:-}
+    ports:
+      - "3001:3001"
+    depends_on:
+      db:
+        condition: service_healthy
+    command: sh -c "npx tsx src/db/migrate.ts && npx tsx src/db/seed.ts && npm start"
+
+  web:
+    build: ./frontend
+    environment:
+      API_INTERNAL_URL: http://api:3001
+      NEXT_PUBLIC_API_URL: /api
+    ports:
+      - "3000:3000"
+    depends_on:
+      - api
+
+  ollama:
+    image: ollama/ollama:latest
+    profiles: ["ollama"]
+    ports:
+      - "11434:11434"
+
+volumes:
+  postgres_data:

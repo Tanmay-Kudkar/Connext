@@ -1,250 +1,133 @@
-import { users } from "@/lib/seed";
-import { Flame, Trophy, Hash, Zap, Briefcase, CheckCircle2, GitBranch } from "lucide-react";
+"use client";
 
-// Demo user – Tanmay
-const me = users[0];
+import { useEffect, useState } from "react";
+import { clientApi } from "@/lib/api";
 
-const badges = [
-  { icon: "🔥", name: "7-Day Streak", earned: true },
-  { icon: "💬", name: "First Answer", earned: true },
-  { icon: "🎯", name: "Accepted Answer", earned: true },
-  { icon: "🚀", name: "10 Contributions", earned: false },
-  { icon: "🌐", name: "Cross-Campus", earned: false },
-  { icon: "👑", name: "Top Contributor", earned: false },
-];
+type Stats = { xp: number; level: number; credits: number; streakDays: number; lastActive: string | null };
+type EventRow = { id: string; type: string; weight: number; createdAt: string };
+type Quest = { id: string; title: string; target: number; progress: number; xpReward: number; completedAt: string | null };
+type Badge = { id: string; name: string; icon: string; earned: boolean };
+type HeatDay = { day: string; count: number };
+type BoardRow = { rank: number; handle: string; displayName: string; xp: number; level: number; credits: number };
 
-// Heatmap – last 12 weeks (84 days)
-const heatmapData = Array.from({ length: 84 }, (_, i) => ({
-  date: i,
-  count: Math.random() > 0.6 ? Math.floor(Math.random() * 5) : 0,
-}));
+export default function ActivityPage() {
+  const [stats, setStats] = useState<Stats | null>(null);
+  const [events, setEvents] = useState<EventRow[]>([]);
+  const [quests, setQuests] = useState<Quest[]>([]);
+  const [badges, setBadges] = useState<Badge[]>([]);
+  const [heat, setHeat] = useState<HeatDay[]>([]);
+  const [board, setBoard] = useState<BoardRow[]>([]);
 
-const heatmapColor = (count: number) => {
-  if (count === 0) return "var(--hairline)";
-  if (count === 1) return "#FF4B2B44";
-  if (count === 2) return "#FF4B2B88";
-  if (count === 3) return "#FF4B2BAA";
-  return "var(--accent)";
-};
+  useEffect(() => {
+    let cancelled = false;
+    async function load() {
+      const [s, e, q, b, h, l] = await Promise.all([
+        clientApi<Stats>("/api/credits/stats/me"),
+        clientApi<{ events: EventRow[] }>("/api/credits/events/me"),
+        clientApi<{ quests: Quest[] }>("/api/quests/me"),
+        clientApi<{ badges: Badge[] }>("/api/badges/me"),
+        clientApi<{ days: HeatDay[] }>("/api/credits/heatmap/me"),
+        clientApi<{ leaderboard: BoardRow[] }>("/api/credits/leaderboard"),
+      ]);
+      if (cancelled) return;
+      setStats(s);
+      setEvents(e.events);
+      setQuests(q.quests);
+      setBadges(b.badges);
+      setHeat(h.days);
+      setBoard(l.leaderboard);
+    }
+    load();
+    const timer = setInterval(load, 4000);
+    return () => {
+      cancelled = true;
+      clearInterval(timer);
+    };
+  }, []);
 
-export default function DashboardPage() {
-  const xpToNext = 1800;
-  const xpPct = Math.round((me.xp / xpToNext) * 100);
+  const heatMap = new Map(heat.map((d) => [String(d.day).slice(0, 10), d.count]));
+  const days = Array.from({ length: 84 }, (_, i) => {
+    const d = new Date();
+    d.setDate(d.getDate() - (83 - i));
+    return d.toISOString().slice(0, 10);
+  });
 
   return (
-    <div className="mx-auto max-w-5xl px-4 sm:px-6 py-8">
-      <header className="mb-8">
-        <h1 className="text-display">Dashboard</h1>
-        <p className="text-small mt-1" style={{ color: "var(--text-muted)" }}>
-          Your contribution journey — <strong>{me.displayName}</strong> · {me.college.short}
-        </p>
+    <div className="space-y-8">
+      <header>
+        <h1 className="text-display">Activity</h1>
+        <p className="mt-1 text-muted">XP, credits, and quests from real events — not a random heatmap.</p>
       </header>
-
-      <div className="grid gap-5 lg:grid-cols-3">
-        {/* Left column */}
-        <div className="flex flex-col gap-5 lg:col-span-2">
-
-          {/* Level + XP card */}
-          <section
-            className="rounded-2xl p-6"
-            style={{ border: "1px solid var(--hairline)", background: "var(--surface)" }}
-            aria-label="Level and XP"
-          >
-            <div className="flex items-center justify-between mb-4">
-              <div className="flex items-center gap-4">
-                <div
-                  className="flex h-16 w-16 items-center justify-center rounded-2xl font-bold"
-                  style={{ background: "var(--accent-dim)", color: "var(--accent)", fontSize: "1.125rem", border: "2px solid var(--accent)" }}
-                  aria-label={`Level ${me.level}`}
-                >
-                  Lv {me.level}
-                </div>
-                <div>
-                  <h2 className="text-title">{me.displayName}</h2>
-                  <p className="text-small" style={{ color: "var(--text-muted)" }}>
-                    {me.role} · {me.college.short}
-                  </p>
-                </div>
-              </div>
-              <div className="flex items-center gap-2">
-                <span className="streak-badge text-base"><Flame size={16} aria-hidden /> {me.streakDays}</span>
-              </div>
-            </div>
-
-            {/* XP bar */}
-            <div>
-              <div className="flex justify-between text-small mb-1.5" style={{ color: "var(--text-muted)" }}>
-                <span>XP Progress to Level {me.level + 1}</span>
-                <span className="text-mono">{me.xp.toLocaleString()} / {xpToNext.toLocaleString()}</span>
-              </div>
-              <div className="h-2.5 rounded-full overflow-hidden" style={{ background: "var(--hairline)" }}>
-                <div
-                  className="h-full rounded-full transition-all"
-                  style={{ width: `${xpPct}%`, background: "var(--accent)" }}
-                  role="progressbar"
-                  aria-valuenow={xpPct}
-                  aria-valuemin={0}
-                  aria-valuemax={100}
-                  aria-label="XP progress"
-                />
-              </div>
-            </div>
-
-            {/* Stats row */}
-            <div className="mt-5 grid grid-cols-3 gap-3">
-              {[
-                { label: "Streak", value: `${me.streakDays}d`, icon: <Flame size={14} aria-hidden /> },
-                { label: "Total XP",  value: me.xp.toLocaleString(), icon: <Zap size={14} aria-hidden /> },
-                { label: "Credits",  value: "380 cr", icon: <Trophy size={14} aria-hidden /> },
-              ].map(s => (
-                <div
-                  key={s.label}
-                  className="rounded-xl p-3 text-center"
-                  style={{ background: "var(--accent-dim)" }}
-                >
-                  <div className="flex justify-center mb-1" style={{ color: "var(--accent)" }}>{s.icon}</div>
-                  <p className="text-mono font-bold" style={{ color: "var(--accent)", fontSize: "1rem" }}>{s.value}</p>
-                  <p className="text-small mt-0.5" style={{ color: "var(--text-muted)" }}>{s.label}</p>
-                </div>
-              ))}
-            </div>
-          </section>
-
-          {/* Contribution heatmap */}
-          <section
-            className="rounded-2xl p-6"
-            style={{ border: "1px solid var(--hairline)", background: "var(--surface)" }}
-            aria-label="Contribution heatmap"
-          >
-            <h2 className="text-small font-semibold mb-4 flex items-center gap-2">
-              <GitBranch size={14} aria-hidden style={{ color: "var(--accent)" }} />
-              Contribution activity (last 12 weeks)
-            </h2>
-            <div className="flex gap-1 flex-wrap">
-              {heatmapData.map((d, i) => (
-                <div
-                  key={i}
-                  className="h-3 w-3 rounded-sm"
-                  style={{ background: heatmapColor(d.count) }}
-                  title={`${d.count} contribution${d.count !== 1 ? "s" : ""}`}
-                  aria-hidden
-                />
-              ))}
-            </div>
-            <div className="mt-3 flex items-center gap-2 text-small" style={{ color: "var(--text-muted)" }}>
-              <span>Less</span>
-              {[0, 1, 2, 3, 4].map(n => (
-                <div key={n} className="h-3 w-3 rounded-sm" style={{ background: heatmapColor(n) }} aria-hidden />
-              ))}
-              <span>More</span>
-            </div>
-          </section>
-
-          {/* Badges */}
-          <section
-            className="rounded-2xl p-6"
-            style={{ border: "1px solid var(--hairline)", background: "var(--surface)" }}
-            aria-label="Badges"
-          >
-            <h2 className="text-small font-semibold mb-4 flex items-center gap-2">
-              <Trophy size={14} aria-hidden style={{ color: "var(--accent)" }} />
-              Badges
-            </h2>
-            <div className="grid grid-cols-3 sm:grid-cols-6 gap-3">
-              {badges.map(b => (
-                <div
-                  key={b.name}
-                  className="flex flex-col items-center gap-1.5 rounded-xl p-3 text-center"
-                  style={{
-                    border: "1px solid var(--hairline)",
-                    background: b.earned ? "var(--accent-dim)" : "transparent",
-                    opacity: b.earned ? 1 : 0.4,
-                  }}
-                  aria-label={`${b.name}${b.earned ? " (earned)" : " (locked)"}`}
-                >
-                  <span style={{ fontSize: "1.5rem" }} aria-hidden>{b.icon}</span>
-                  <span className="text-small" style={{ fontSize: "0.7rem", color: "var(--text-muted)" }}>{b.name}</span>
-                  {b.earned && <CheckCircle2 size={10} style={{ color: "var(--success)" }} aria-hidden />}
-                </div>
-              ))}
-            </div>
-          </section>
+      {stats && (
+        <div className="flex flex-wrap gap-3">
+          <span className="pill-accent">{stats.xp} XP</span>
+          <span className="text-mono">Lv {stats.level}</span>
+          <span className="text-mono">{stats.credits} credits</span>
+          <span className="streak-badge">{stats.streakDays} day streak</span>
         </div>
-
-        {/* Right column */}
-        <div className="flex flex-col gap-5">
-          {/* Vibe / Pro toggle */}
-          <section
-            className="rounded-2xl p-5"
-            style={{ border: "1px solid var(--hairline)", background: "var(--surface)" }}
-            aria-label="Identity mode"
-          >
-            <h2 className="text-small font-semibold mb-3">Identity</h2>
-            <div className="grid grid-cols-2 gap-2">
-              {[
-                { mode: "vibe", label: "Vibe", icon: <Zap size={14} />, desc: "Student mode" },
-                { mode: "pro",  label: "Pro",  icon: <Briefcase size={14} />, desc: "CV mode" },
-              ].map(m => (
-                <button
-                  key={m.mode}
-                  className="flex flex-col items-center gap-1.5 rounded-xl p-3 text-center transition"
-                  style={{ border: "1px solid var(--hairline)" }}
-                  aria-label={`Switch to ${m.label} mode — ${m.desc}`}
-                >
-                  <span style={{ color: "var(--accent)" }}>{m.icon}</span>
-                  <span className="text-small font-semibold">{m.label}</span>
-                  <span className="text-small" style={{ color: "var(--text-muted)", fontSize: "0.73rem" }}>{m.desc}</span>
-                </button>
-              ))}
-            </div>
-          </section>
-
-          {/* Skills */}
-          <section
-            className="rounded-2xl p-5"
-            style={{ border: "1px solid var(--hairline)", background: "var(--surface)" }}
-            aria-label="Skills"
-          >
-            <h2 className="text-small font-semibold mb-3">Skills</h2>
-            <div className="flex flex-wrap gap-2">
-              {me.skills.map(s => (
-                <span key={s} className="chip selected">{s}</span>
-              ))}
-            </div>
-          </section>
-
-          {/* Academic Passport completion */}
-          <section
-            className="rounded-2xl p-5"
-            style={{ border: "1px solid var(--hairline)", background: "var(--surface)" }}
-            aria-label="Academic Passport"
-          >
-            <h2 className="text-small font-semibold mb-1">Academic Passport</h2>
-            <p className="text-small mb-3" style={{ color: "var(--text-muted)" }}>40% complete</p>
-            <div className="h-2 rounded-full overflow-hidden mb-3" style={{ background: "var(--hairline)" }}>
-              <div className="h-full rounded-full" style={{ width: "40%", background: "var(--accent)" }} aria-hidden />
-            </div>
-            {[
-              { label: "GitHub connected", done: false },
-              { label: "LinkedIn (mock) linked", done: false },
-              { label: "ORCID linked", done: false },
-              { label: "Skills added", done: true },
-              { label: "Institution verified", done: true },
-            ].map(item => (
-              <div key={item.label} className="flex items-center gap-2 mb-1.5">
-                <CheckCircle2
-                  size={13}
-                  style={{ color: item.done ? "var(--success)" : "var(--hairline)", flexShrink: 0 }}
-                  aria-hidden
-                />
-                <span className="text-small" style={{ color: item.done ? "var(--text-primary)" : "var(--text-muted)" }}>
-                  {item.label}
-                </span>
-              </div>
-            ))}
-          </section>
+      )}
+      <section>
+        <h2 className="text-title">Heatmap</h2>
+        <div className="mt-3 grid grid-cols-12 gap-1">
+          {days.map((day) => {
+            const n = heatMap.get(day) ?? 0;
+            const opacity = n === 0 ? 0.15 : Math.min(1, 0.3 + n * 0.25);
+            return (
+              <span
+                key={day}
+                title={`${day}: ${n}`}
+                className="h-3 w-3 rounded-sm"
+                style={{ background: "var(--accent)", opacity }}
+              />
+            );
+          })}
         </div>
-      </div>
+      </section>
+      <section>
+        <h2 className="text-title">Quests</h2>
+        <ul className="mt-3 space-y-2">
+          {quests.map((q) => (
+            <li key={q.id} className="text-small">
+              {q.title} — {q.progress}/{q.target}
+              {q.completedAt ? " · done" : ""}
+            </li>
+          ))}
+        </ul>
+      </section>
+      <section>
+        <h2 className="text-title">Badges</h2>
+        <div className="mt-3 flex flex-wrap gap-2">
+          {badges.map((b) => (
+            <span key={b.id} className={`chip ${b.earned ? "selected" : ""}`} style={{ pointerEvents: "none" }}>
+              {b.name}
+            </span>
+          ))}
+        </div>
+      </section>
+      <section>
+        <h2 className="text-title">Recent credits</h2>
+        <ul className="mt-3 space-y-2">
+          {events.length === 0 && <li className="text-muted text-small">No awards yet. Unblock a helper.</li>}
+          {events.map((e) => (
+            <li key={e.id} className="text-small">
+              {e.type.replaceAll("_", " ")} · {e.weight} · {new Date(e.createdAt).toLocaleString()}
+            </li>
+          ))}
+        </ul>
+      </section>
+      <section>
+        <h2 className="text-title">Leaderboard</h2>
+        <ol className="mt-3 space-y-2">
+          {board.map((row) => (
+            <li key={row.handle} className="flex justify-between text-small">
+              <span>
+                {row.rank}. {row.displayName}
+              </span>
+              <span className="text-mono">{row.xp} XP</span>
+            </li>
+          ))}
+        </ol>
+      </section>
     </div>
   );
 }

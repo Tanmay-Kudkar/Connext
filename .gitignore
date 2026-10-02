@@ -18,20 +18,25 @@ Thumbs.db
 .env.production.local
 
 # ========================
-# Node.js & Next.js (Frontend)
+# Node.js (Frontend + API)
 # ========================
 frontend/node_modules/
 frontend/.next/
 frontend/out/
 frontend/build/
 frontend/.swc/
+frontend/test-results/
+frontend/playwright-report/
+frontend/blob-report/
+backend/node_modules/
+backend/dist/
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
 pnpm-debug.log*
 
 # ========================
-# Python & FastAPI (Backend)
+# Legacy Python artifacts
 # ========================
 # Byte-compiled / optimized / DLL files
 __pycache__/
