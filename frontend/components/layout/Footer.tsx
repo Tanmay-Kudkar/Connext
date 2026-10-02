@@ -31,21 +31,21 @@ export default function Footer() {
 
                         <div className="mt-4 space-y-3">
                             <Link
-                                href="#"
+                                href="/ask"
                                 className="block text-sm text-gray-400 transition hover:text-white"
                             >
                                 Ask Questions
                             </Link>
 
                             <Link
-                                href="#"
+                                href="/communities"
                                 className="block text-sm text-gray-400 transition hover:text-white"
                             >
                                 Collaborate
                             </Link>
 
                             <Link
-                                href="#"
+                                href="/communities"
                                 className="block text-sm text-gray-400 transition hover:text-white"
                             >
                                 Community
@@ -61,21 +61,21 @@ export default function Footer() {
 
                         <div className="mt-4 space-y-3">
                             <Link
-                                href="#"
+                                href="/communities"
                                 className="block text-sm text-gray-400 transition hover:text-white"
                             >
                                 Students
                             </Link>
 
                             <Link
-                                href="#"
+                                href="/communities"
                                 className="block text-sm text-gray-400 transition hover:text-white"
                             >
                                 Faculty
                             </Link>
 
                             <Link
-                                href="#"
+                                href="/communities"
                                 className="block text-sm text-gray-400 transition hover:text-white"
                             >
                                 Researchers

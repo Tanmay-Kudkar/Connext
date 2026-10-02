@@ -73,14 +73,14 @@ export default function Home() {
 
           <div className="mt-10 flex flex-col items-center justify-center gap-4 sm:flex-row">
             <Link
-              href="#get-started"
+              href="/ask"
               className="rounded-xl bg-white px-7 py-3.5 font-semibold text-black transition hover:bg-gray-200"
             >
               Get Started →
             </Link>
 
             <Link
-              href="#explore"
+              href="/communities"
               className="rounded-xl border border-white/15 bg-white/5 px-7 py-3.5 font-semibold text-white transition hover:bg-white/10"
             >
               Explore Connext
@@ -208,7 +208,7 @@ export default function Home() {
               </p>
 
               <Link
-                href="#"
+                href="/ask"
                 className="mt-8 inline-flex rounded-xl bg-white px-8 py-3.5 font-semibold text-black transition hover:bg-gray-200"
               >
                 Get Started →
