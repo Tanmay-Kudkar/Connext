@@ -62,25 +62,33 @@ export function AppShell({
 
   useEffect(() => {
     let cancelled = false;
-    async function load() {
+    async function loadChrome() {
       try {
-        const [s, q, c] = await Promise.all([
+        const [s, q] = await Promise.all([
           clientApi<Stats>("/api/credits/stats/me"),
           clientApi<{ quests: Quest[] }>("/api/quests/me"),
-          clientApi<{ communities: Community[] }>("/api/communities"),
         ]);
         if (!cancelled) {
           setStats(s);
           setQuests(q.quests);
-          const suggested = c.communities.filter((room) => !room.joined).slice(0, 4);
-          setRooms(suggested.length ? suggested : c.communities.slice(0, 4));
         }
       } catch {
         /* unauthenticated pages shouldn't reach here */
       }
     }
-    load();
-    const timer = setInterval(load, 4000);
+    async function loadRooms() {
+      try {
+        const c = await clientApi<{ communities: Community[] }>("/api/communities");
+        if (cancelled) return;
+        const suggested = c.communities.filter((room) => !room.joined).slice(0, 4);
+        setRooms(suggested.length ? suggested : c.communities.slice(0, 4));
+      } catch {
+        /* ignore */
+      }
+    }
+    loadChrome();
+    loadRooms();
+    const timer = setInterval(loadChrome, 12_000);
     return () => {
       cancelled = true;
       clearInterval(timer);

@@ -49,8 +49,6 @@ export function DashboardPanel() {
 
   useEffect(() => {
     void load();
-    const timer = setInterval(() => void load(), 4000);
-    return () => clearInterval(timer);
   }, [load]);
 
   const heatMap = new Map(heat.map((d) => [String(d.day).slice(0, 10), d.count]));
