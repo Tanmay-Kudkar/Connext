@@ -73,7 +73,7 @@ export default function Home() {
 
           <div className="mt-10 flex flex-col items-center justify-center gap-4 sm:flex-row">
             <Link
-              href="#get-started"
+              href="/login"
               className="rounded-xl bg-white px-7 py-3.5 font-semibold text-black transition hover:bg-gray-200"
             >
               Get Started →
@@ -208,8 +208,8 @@ export default function Home() {
               </p>
 
               <Link
-                href="#"
-                className="mt-8 inline-flex rounded-xl bg-white px-8 py-3.5 font-semibold text-black transition hover:bg-gray-200"
+                href="/login"
+                className="rounded-xl bg-white px-7 py-3.5 font-semibold text-black transition hover:bg-gray-200"
               >
                 Get Started →
               </Link>
