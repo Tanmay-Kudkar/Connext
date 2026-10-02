@@ -3,28 +3,37 @@
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
+import { useAuth } from "@/components/providers/AuthProvider";
 import { clientApi } from "@/lib/api";
 import type { Community, FeedPost } from "@/lib/types";
 
+type Identity = "vibe" | "pro" | "anon";
+
 export default function AskPage() {
   const router = useRouter();
+  const { user, setMode } = useAuth();
   const [communities, setCommunities] = useState<Community[]>([]);
   const [communitySlug, setCommunitySlug] = useState("");
   const [title, setTitle] = useState("");
   const [body, setBody] = useState("");
-  const [anon, setAnon] = useState(true);
+  const [tags, setTags] = useState("");
+  const [identity, setIdentity] = useState<Identity>(user?.mode === "pro" ? "pro" : "anon");
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState("");
   const [similar, setSimilar] = useState<FeedPost[]>([]);
   const [similarBanner, setSimilarBanner] = useState("");
+  const [loadingRooms, setLoadingRooms] = useState(true);
 
   useEffect(() => {
+    setLoadingRooms(true);
     clientApi<{ communities: Community[] }>("/api/communities")
       .then((d) => {
         setCommunities(d.communities);
         if (d.communities[0]) setCommunitySlug(d.communities[0].slug);
+        setError("");
       })
-      .catch(() => setError("Could not load communities"));
+      .catch(() => setError("Could not load communities"))
+      .finally(() => setLoadingRooms(false));
   }, []);
 
   useEffect(() => {
@@ -71,9 +80,22 @@ export default function AskPage() {
     setBusy(true);
     setError("");
     try {
+      if (identity === "vibe" || identity === "pro") {
+        await setMode(identity);
+      }
+      const tagList = tags
+        .split(",")
+        .map((t) => t.trim())
+        .filter(Boolean);
       const res = await clientApi<{ post: FeedPost }>("/api/posts", {
         method: "POST",
-        body: JSON.stringify({ communitySlug, title, body, anon, tags: [] }),
+        body: JSON.stringify({
+          communitySlug,
+          title,
+          body,
+          anon: identity === "anon",
+          tags: tagList,
+        }),
       });
       router.push(`/post/${res.post.id}`);
       router.refresh();
@@ -102,6 +124,7 @@ export default function AskPage() {
           value={communitySlug}
           onChange={(e) => setCommunitySlug(e.target.value)}
           required
+          disabled={loadingRooms}
         >
           {communities.map((c) => (
             <option key={c.slug} value={c.slug}>
@@ -109,6 +132,25 @@ export default function AskPage() {
             </option>
           ))}
         </select>
+        {!loadingRooms && communities.length === 0 && (
+          <button
+            type="button"
+            className="btn-ghost hairline"
+            onClick={() => {
+              setLoadingRooms(true);
+              clientApi<{ communities: Community[] }>("/api/communities")
+                .then((d) => {
+                  setCommunities(d.communities);
+                  if (d.communities[0]) setCommunitySlug(d.communities[0].slug);
+                  setError("");
+                })
+                .catch(() => setError("Could not load communities"))
+                .finally(() => setLoadingRooms(false));
+            }}
+          >
+            Retry
+          </button>
+        )}
         <label className="block text-small font-semibold" htmlFor="title">
           Title
         </label>
@@ -131,10 +173,37 @@ export default function AskPage() {
           onChange={(e) => setBody(e.target.value)}
           placeholder="What you already tried."
         />
-        <label className="flex items-center gap-2 text-small">
-          <input type="checkbox" checked={anon} onChange={(e) => setAnon(e.target.checked)} />
-          Post anonymously
+        <label className="block text-small font-semibold" htmlFor="tags">
+          Syllabus tags
         </label>
+        <input
+          id="tags"
+          className="input-base"
+          value={tags}
+          onChange={(e) => setTags(e.target.value)}
+          placeholder="indexing, postgres"
+        />
+        <fieldset>
+          <legend className="text-small font-semibold">Post as</legend>
+          <div className="mt-2 flex flex-wrap gap-2">
+            {(
+              [
+                ["vibe", "Vibe"],
+                ["pro", "Pro"],
+                ["anon", "Anonymous"],
+              ] as const
+            ).map(([id, label]) => (
+              <button
+                key={id}
+                type="button"
+                className={`chip ${identity === id ? "selected" : ""}`}
+                onClick={() => setIdentity(id)}
+              >
+                {label}
+              </button>
+            ))}
+          </div>
+        </fieldset>
         {similarBanner && (
           <p className="text-small" role="status" style={{ color: "var(--warning)" }}>
             {similarBanner}
@@ -159,7 +228,7 @@ export default function AskPage() {
             {error}
           </p>
         )}
-        <button className="btn-primary" type="submit" disabled={busy}>
+        <button className="btn-primary" type="submit" disabled={busy || !communitySlug}>
           Post question
         </button>
       </form>

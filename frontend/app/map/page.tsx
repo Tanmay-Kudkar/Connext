@@ -1,6 +1,7 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
+import { ListState } from "@/components/shell/ListState";
 import { clientApi } from "@/lib/api";
 
 type Cluster = {
@@ -27,13 +28,29 @@ export default function MapPage() {
   const [matches, setMatches] = useState<Match[]>([]);
   const [showMap, setShowMap] = useState(false);
   const [optIn, setOptIn] = useState(true);
+  const [error, setError] = useState("");
+  const [loading, setLoading] = useState(true);
+
+  const load = useCallback(async () => {
+    setLoading(true);
+    try {
+      const [people, mates] = await Promise.all([
+        clientApi<{ clusters: Cluster[] }>("/api/map/people"),
+        clientApi<{ results: Match[] }>("/api/ai/match-teammates", { method: "POST", body: JSON.stringify({}) }),
+      ]);
+      setClusters(people.clusters);
+      setMatches(mates.results);
+      setError("");
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Could not load the map");
+    } finally {
+      setLoading(false);
+    }
+  }, []);
 
   useEffect(() => {
-    clientApi<{ clusters: Cluster[] }>("/api/map/people").then((d) => setClusters(d.clusters));
-    clientApi<{ results: Match[] }>("/api/ai/match-teammates", { method: "POST", body: JSON.stringify({}) }).then((d) =>
-      setMatches(d.results),
-    );
-  }, []);
+    void load();
+  }, [load]);
 
   return (
     <div className="space-y-8">
@@ -50,53 +67,57 @@ export default function MapPage() {
         <input type="checkbox" checked={optIn} onChange={(e) => setOptIn(e.target.checked)} />
         Share my college city on the map
       </label>
-      {optIn && showMap && (
-        <div className="hairline rounded-[var(--radius)] p-4">
-          <p className="text-small text-muted">Coarse clusters — not a street map.</p>
-          <div className="mt-4 grid grid-cols-2 gap-3">
-            {clusters.map((c) => (
-              <div key={c.city} className="hairline p-3" style={{ borderRadius: "var(--radius)" }}>
-                <div className="font-semibold">{c.city}</div>
-                <div className="text-small text-muted">
-                  {c.state} · {c.people.length} people
+      <ListState loading={loading} error={error} onRetry={() => void load()}>
+        {optIn && showMap && (
+          <div className="hairline rounded-[var(--radius)] p-4">
+            <p className="text-small text-muted">Coarse clusters — not a street map.</p>
+            <div className="mt-4 grid grid-cols-2 gap-3">
+              {clusters.map((c) => (
+                <div key={c.city} className="hairline p-3" style={{ borderRadius: "var(--radius)" }}>
+                  <div className="font-semibold">{c.city}</div>
+                  <div className="text-small text-muted">
+                    {c.state} · {c.people.length} people
+                  </div>
                 </div>
-              </div>
-            ))}
+              ))}
+            </div>
           </div>
-        </div>
-      )}
-      {optIn && !showMap && (
-        <ul>
-          {clusters.map((c) => (
-            <li key={c.city} className="post-row">
-              <div className="font-semibold">
-                {c.city}, {c.state}
-              </div>
-              <p className="text-small text-muted">{c.people.length} opted-in people</p>
-              <p className="mt-1 text-small">
-                {c.people
-                  .slice(0, 4)
-                  .map((p) => p.displayName)
-                  .join(", ")}
-              </p>
-            </li>
-          ))}
-        </ul>
-      )}
-      <section>
-        <h2 className="text-title">Recommended teammates</h2>
-        <ul className="mt-3 space-y-3">
-          {matches.map((m) => (
-            <li key={m.userId} className="post-row">
-              <div className="font-semibold">
-                {m.displayName} · {m.institution}
-              </div>
-              <p className="text-small text-muted">{m.reason}</p>
-            </li>
-          ))}
-          {matches.length === 0 && <li className="text-muted text-small">No overlapping tags yet.</li>}
-        </ul>
-      </section>
+        )}
+        {optIn && !showMap && (
+          <ListState empty={clusters.length === 0} emptyCopy="Nobody opted in nearby yet.">
+            <ul>
+              {clusters.map((c) => (
+                <li key={c.city} className="post-row">
+                  <div className="font-semibold">
+                    {c.city}, {c.state}
+                  </div>
+                  <p className="text-small text-muted">{c.people.length} opted-in people</p>
+                  <p className="mt-1 text-small">
+                    {c.people
+                      .slice(0, 4)
+                      .map((p) => p.displayName)
+                      .join(", ")}
+                  </p>
+                </li>
+              ))}
+            </ul>
+          </ListState>
+        )}
+        <section>
+          <h2 className="text-title">Recommended teammates</h2>
+          <ul className="mt-3 space-y-3">
+            {matches.map((m) => (
+              <li key={m.userId} className="post-row">
+                <div className="font-semibold">
+                  {m.displayName} · {m.institution}
+                </div>
+                <p className="text-small text-muted">{m.reason}</p>
+              </li>
+            ))}
+            {matches.length === 0 && <li className="text-muted text-small">No overlapping tags yet.</li>}
+          </ul>
+        </section>
+      </ListState>
     </div>
   );
 }

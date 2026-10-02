@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { ArrowUp } from "lucide-react";
 import { Avatar } from "@/components/shell/Avatar";
+import { celebrateFirstCredit } from "@/components/shell/FirstCreditBurst";
 import { clientApi } from "@/lib/api";
 import type { ThreadComment } from "@/lib/types";
 import { timeAgo } from "@/lib/utils";
@@ -38,6 +39,7 @@ function CommentNode({
   const [body, setBody] = useState("");
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState("");
+  const [collapsed, setCollapsed] = useState(false);
 
   async function vote() {
     await clientApi(`/api/comments/${comment.id}/upvote`, { method: "POST" }).catch(() => undefined);
@@ -49,6 +51,7 @@ function CommentNode({
     setError("");
     try {
       await clientApi(`/api/comments/${comment.id}/unblock`, { method: "POST" });
+      celebrateFirstCredit();
       onChanged();
     } catch (err) {
       setError(err instanceof Error ? err.message : "Could not award credits");
@@ -87,28 +90,32 @@ function CommentNode({
 
   const name = comment.author.anon ? "Verified student" : comment.author.displayName;
   const college = comment.author.anon ? null : comment.author.institution?.short;
+  const nested = (comment.children?.length ?? 0) > 0 || comment.truncated;
 
   return (
     <li>
       <div className="flex gap-3">
         <div className="flex flex-col items-center">
           <Avatar initials={comment.author.initials} size={28} />
-          {(comment.children?.length || comment.truncated) && (
-            <span className="mt-1 w-px flex-1" style={{ background: "var(--hairline)" }} />
-          )}
+          {nested && !collapsed && <span className="mt-1 w-px flex-1" style={{ background: "var(--hairline)" }} />}
         </div>
         <div className="min-w-0 flex-1 pb-3">
           <div className="flex flex-wrap items-center gap-2 text-small text-muted">
-            <span className="font-semibold" style={{ color: "var(--text-primary)" }}>
+            <span className="max-w-[12rem] truncate font-semibold" style={{ color: "var(--text-primary)" }} title={name}>
               {name}
             </span>
             {college && <span>{college}</span>}
             <span>{timeAgo(comment.createdAt)}</span>
             {comment.awarded && <span className="badge-resolved">Unblocked</span>}
+            {nested && (
+              <button type="button" className="btn-ghost h-auto min-h-0 px-1 py-1 text-small" onClick={() => setCollapsed((v) => !v)}>
+                {collapsed ? "Expand" : "Collapse"}
+              </button>
+            )}
           </div>
           <p className="mt-1 text-body">{comment.body}</p>
           <div className="mt-2 flex flex-wrap items-center gap-2">
-            <button type="button" className="btn-ghost h-auto min-h-0 px-1 py-1 text-small" onClick={vote}>
+            <button type="button" className="btn-ghost h-auto min-h-0 px-1 py-1 text-small" onClick={() => void vote()}>
               <ArrowUp size={14} /> <span className="text-mono">{comment.upvotes}</span>
             </button>
             <button
@@ -119,11 +126,11 @@ function CommentNode({
               Reply
             </button>
             {comment.canUnblock && (
-              <button type="button" className="btn-accent h-auto min-h-0 py-1" disabled={busy} onClick={unblock}>
+              <button type="button" className="btn-accent h-auto min-h-0 py-1" disabled={busy} onClick={() => void unblock()}>
                 This unblocked me
               </button>
             )}
-            <button type="button" className="btn-ghost h-auto min-h-0 px-1 py-1 text-small text-muted" onClick={report}>
+            <button type="button" className="btn-ghost h-auto min-h-0 px-1 py-1 text-small text-muted" onClick={() => void report()}>
               Report
             </button>
           </div>
@@ -146,10 +153,10 @@ function CommentNode({
               </button>
             </form>
           )}
-          {comment.truncated && (
+          {!collapsed && comment.truncated && (
             <p className="mt-2 text-small text-muted">Continue thread — depth cap reached.</p>
           )}
-          {comment.children && comment.children.length > 0 && (
+          {!collapsed && comment.children && comment.children.length > 0 && (
             <div className="mt-4">
               <CommentTree comments={comment.children} postId={postId} onChanged={onChanged} />
             </div>

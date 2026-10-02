@@ -3,9 +3,12 @@
 import Link from "next/link";
 import { useCallback, useEffect, useState } from "react";
 import { useParams } from "next/navigation";
+import { Bookmark, Share } from "lucide-react";
 import { CommentTree } from "@/components/thread/CommentTree";
 import { Avatar } from "@/components/shell/Avatar";
+import { ListState } from "@/components/shell/ListState";
 import { clientApi } from "@/lib/api";
+import { copyPostLink, isSaved, toggleSaved } from "@/lib/saved";
 import type { FeedPost, ThreadComment } from "@/lib/types";
 import { timeAgo } from "@/lib/utils";
 
@@ -16,15 +19,28 @@ export default function PostPage() {
   const [reply, setReply] = useState("");
   const [error, setError] = useState("");
   const [busy, setBusy] = useState(false);
+  const [loading, setLoading] = useState(true);
+  const [saved, setSaved] = useState(false);
+  const [copied, setCopied] = useState(false);
 
   const load = useCallback(async () => {
-    const data = await clientApi<{ post: FeedPost; comments: ThreadComment[] }>(`/api/posts/${params.id}`);
-    setPost(data.post);
-    setComments(data.comments);
+    setLoading(true);
+    try {
+      const data = await clientApi<{ post: FeedPost; comments: ThreadComment[] }>(`/api/posts/${params.id}`);
+      setPost(data.post);
+      setComments(data.comments);
+      setSaved(isSaved(data.post.id));
+      setError("");
+    } catch {
+      setPost(null);
+      setError("Thread not found");
+    } finally {
+      setLoading(false);
+    }
   }, [params.id]);
 
   useEffect(() => {
-    load().catch(() => setError("Thread not found"));
+    void load();
   }, [load]);
 
   async function submitReply(e: React.FormEvent) {
@@ -59,8 +75,15 @@ export default function PostPage() {
     });
   }
 
-  if (!post && !error) return <div className="skeleton h-24" />;
-  if (!post) return <p>{error}</p>;
+  if (loading && !post) return <ListState loading>{null}</ListState>;
+
+  if (!post) {
+    return (
+      <ListState error={error || "Thread not found"} onRetry={() => void load()}>
+        {null}
+      </ListState>
+    );
+  }
 
   const name = post.author.anon ? "Verified student" : post.author.displayName;
   const college = post.author.anon ? null : post.author.institution?.short;
@@ -80,12 +103,16 @@ export default function PostPage() {
         <Avatar initials={post.author.initials} />
         <div>
           <div className="flex flex-wrap items-center gap-2 text-small text-muted">
-            <span className="font-semibold" style={{ color: "var(--text-primary)" }}>
+            <span className="max-w-[14rem] truncate font-semibold" style={{ color: "var(--text-primary)" }} title={name}>
               {name}
             </span>
             {college && <span>{college}</span>}
             <span>{timeAgo(post.createdAt)}</span>
-            {post.status === "resolved" && <span className="badge-resolved">Resolved</span>}
+            {post.status === "resolved" ? (
+              <span className="badge-resolved">Resolved</span>
+            ) : (
+              <span className="badge-open">Open</span>
+            )}
           </div>
           <h1 className="mt-2 text-title">{post.title}</h1>
         </div>
@@ -100,11 +127,32 @@ export default function PostPage() {
       </div>
       <div className="mt-4 flex flex-wrap gap-2">
         {post.isOwner && post.anon && (
-          <button type="button" className="btn-ghost hairline" onClick={reveal}>
+          <button type="button" className="btn-ghost hairline" onClick={() => void reveal()}>
             Reveal my name
           </button>
         )}
-        <button type="button" className="btn-ghost" onClick={report}>
+        <button
+          type="button"
+          className="btn-ghost"
+          aria-pressed={saved}
+          onClick={() => setSaved(toggleSaved(post.id))}
+        >
+          <Bookmark size={16} fill={saved ? "currentColor" : "none"} />
+          Save
+        </button>
+        <button
+          type="button"
+          className="btn-ghost"
+          onClick={async () => {
+            await copyPostLink(post.id);
+            setCopied(true);
+            window.setTimeout(() => setCopied(false), 1200);
+          }}
+        >
+          <Share size={16} />
+          {copied ? "Copied" : "Share"}
+        </button>
+        <button type="button" className="btn-ghost" onClick={() => void report()}>
           Report
         </button>
         {post.credits > 0 && <span className="pill-accent">{post.credits} cr</span>}
@@ -124,7 +172,7 @@ export default function PostPage() {
             Reply
           </button>
         </form>
-        {error && (
+        {error && post && (
           <p className="mt-2 text-small" style={{ color: "var(--error)" }}>
             {error}
           </p>
@@ -133,7 +181,7 @@ export default function PostPage() {
           {comments.length === 0 ? (
             <p className="text-muted">No replies yet. A sentence is enough.</p>
           ) : (
-            <CommentTree comments={comments} postId={post.id} onChanged={load} />
+            <CommentTree comments={comments} postId={post.id} onChanged={() => void load()} />
           )}
         </div>
       </section>

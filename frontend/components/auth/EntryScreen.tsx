@@ -1,10 +1,12 @@
 "use client";
 
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import { useState } from "react";
 import { clientApi } from "@/lib/api";
 import type { PublicUser } from "@/lib/types";
 import { useAuth } from "@/components/providers/AuthProvider";
+import { Avatar } from "@/components/shell/Avatar";
+import { Wordmark } from "@/components/shell/Wordmark";
 
 const AVATARS = [
   { id: "initials", label: "Initials" },
@@ -27,6 +29,19 @@ export function EntryScreen() {
   const [busy, setBusy] = useState(false);
   const [hint, setHint] = useState("");
 
+  useEffect(() => {
+    if (step !== "face") return;
+    const root = document.documentElement;
+    root.dataset.mode = mode;
+    if (mode === "vibe") {
+      root.style.setProperty("--accent", "#FF4B2B");
+      root.style.setProperty("--accent-dim", "#FF4B2B22");
+    } else {
+      root.style.removeProperty("--accent");
+      root.style.removeProperty("--accent-dim");
+    }
+  }, [step, mode]);
+
   async function requestOtp(e: React.FormEvent) {
     e.preventDefault();
     setBusy(true);
@@ -45,6 +60,18 @@ export function EntryScreen() {
     }
   }
 
+  async function persistFace(user: PublicUser) {
+    try {
+      const res = await clientApi<{ user: PublicUser }>("/api/users/me", {
+        method: "PATCH",
+        body: JSON.stringify({ mode, avatarPack }),
+      });
+      setUser(res.user);
+    } catch {
+      setUser(user);
+    }
+  }
+
   async function verify(payload: Record<string, unknown>) {
     setBusy(true);
     setError("");
@@ -57,7 +84,10 @@ export function EntryScreen() {
         setStep("face");
         return;
       }
-      if (res.user) setUser(res.user);
+      if (res.user) {
+        if (payload.handle) await persistFace(res.user);
+        else setUser(res.user);
+      }
       if (payload.handle) {
         router.push("/onboard");
       }
@@ -86,10 +116,18 @@ export function EntryScreen() {
     }
   }
 
+  const previewName = displayName.trim() || "Your name";
+  const previewInitials = previewName
+    .split(/\s+/)
+    .filter(Boolean)
+    .slice(0, 2)
+    .map((p) => p[0]?.toUpperCase() ?? "")
+    .join("");
+
   return (
     <main className="mx-auto flex min-h-dvh max-w-md flex-col justify-center px-6 py-16">
-      <p className="text-small text-muted">Connext</p>
-      <h1 className="mt-3 text-display">Ask without fear.</h1>
+      <Wordmark />
+      <h1 className="mt-6 text-display">Ask without fear.</h1>
       <p className="mt-2 text-muted">Verified by college email. You can still post anonymously.</p>
 
       {step === "email" && (
@@ -122,6 +160,7 @@ export function EntryScreen() {
           }}
         >
           <p className="text-small text-muted">{hint}</p>
+          <p className="text-small">Verified, but you can post anonymously.</p>
           <label className="block text-small font-semibold" htmlFor="otp">
             One-time code
           </label>
@@ -149,6 +188,13 @@ export function EntryScreen() {
           }}
         >
           <p className="text-small">Pick how you show up. You can switch Vibe and Pro later.</p>
+          <div className="flex items-center gap-3 hairline p-3" style={{ borderRadius: "var(--radius)" }}>
+            <Avatar initials={previewInitials || "?"} pack={avatarPack} size={48} />
+            <div>
+              <div className="font-semibold">{previewName}</div>
+              <div className="text-small text-muted">{mode === "pro" ? "Pro · CV, papers" : "Vibe · campus, rooms"}</div>
+            </div>
+          </div>
           <div className="grid grid-cols-2 gap-3">
             <button
               type="button"
@@ -207,6 +253,21 @@ export function EntryScreen() {
         <p className="mt-4 text-small" role="alert" data-testid="auth-error" style={{ color: "var(--error)" }}>
           {error}
         </p>
+      )}
+
+      {step === "email" && (
+        <div className="mt-6 space-y-2">
+          <p className="text-small text-muted">Or continue with a demo portal</p>
+          <button className="btn-ghost w-full justify-center hairline" type="button" onClick={() => demo("student")} disabled={busy}>
+            GitHub (demo)
+          </button>
+          <button className="btn-ghost w-full justify-center hairline" type="button" onClick={() => demo("student")} disabled={busy}>
+            LinkedIn (demo)
+          </button>
+          <button className="btn-ghost w-full justify-center hairline" type="button" onClick={() => demo("faculty")} disabled={busy}>
+            ResearchGate (demo)
+          </button>
+        </div>
       )}
 
       <div className="mt-10 space-y-2">

@@ -37,8 +37,23 @@
 
   [data-mode="pro"] {
     --radius: var(--radius-pro);
-    --accent: #2563EB;
-    --accent-dim: #2563EB22;
+    --accent: #111111;
+    --accent-dim: #11111114;
+  }
+
+  @media (prefers-color-scheme: dark) {
+    html:not([data-theme="light"]) {
+      color-scheme: dark;
+      --bg:          #0A0A0A;
+      --surface:     #121212;
+      --text-primary: #F5F5F2;
+      --text-muted:   #9A9A94;
+      --hairline:    #242424;
+    }
+    html:not([data-theme="light"])[data-mode="pro"] {
+      --accent: #F5F5F2;
+      --accent-dim: #F5F5F214;
+    }
   }
 
   .dark, [data-theme="dark"] {
@@ -48,6 +63,20 @@
     --text-primary: #F5F5F2;
     --text-muted:   #9A9A94;
     --hairline:    #242424;
+  }
+
+  [data-theme="dark"][data-mode="pro"] {
+    --accent: #F5F5F2;
+    --accent-dim: #F5F5F214;
+  }
+
+  [data-theme="light"] {
+    color-scheme: light;
+  }
+
+  *:focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 2px;
   }
 
   * {
@@ -111,6 +140,16 @@
   .badge-resolved {
     background: #1F9D5522;
     color: var(--success);
+    border-radius: 9999px;
+    padding: 0.125rem 0.5rem;
+    font-size: 0.8rem;
+    font-weight: 500;
+  }
+
+  /* Open badge */
+  .badge-open {
+    background: var(--accent-dim);
+    color: var(--accent);
     border-radius: 9999px;
     padding: 0.125rem 0.5rem;
     font-size: 0.8rem;
@@ -270,21 +309,14 @@
     background: var(--accent-dim);
   }
 
-  /* Skeleton loader */
+  /* Skeleton loader — hairline pulse, no gradient */
   .skeleton {
-    background: linear-gradient(
-      90deg,
-      var(--hairline) 25%,
-      color-mix(in srgb, var(--hairline) 70%, transparent) 50%,
-      var(--hairline) 75%
-    );
-    background-size: 200% 100%;
-    animation: shimmer 1.5s infinite;
+    background: var(--hairline);
+    animation: pulse 1.2s ease-in-out infinite;
     border-radius: 0.25rem;
   }
-  @keyframes shimmer {
-    0%   { background-position: 200% center; }
-    100% { background-position: -200% center; }
+  @keyframes pulse {
+    50% { opacity: 0.4; }
   }
 
   /* Streak flame badge */
@@ -296,5 +328,20 @@
     font-size: 0.8rem;
     font-weight: 500;
     color: var(--warning);
+  }
+
+  .skip-link {
+    position: absolute;
+    left: 1rem;
+    top: -3rem;
+    z-index: 60;
+    padding: 0.5rem 0.875rem;
+    background: var(--text-primary);
+    color: var(--bg);
+    border-radius: var(--radius);
+    font-weight: 600;
+  }
+  .skip-link:focus {
+    top: 1rem;
   }
 }
