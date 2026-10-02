@@ -121,13 +121,13 @@ export default function PassportPage() {
             {passport?.researchgate ? "ResearchGate connected" : "Connect ResearchGate (demo)"}
           </Link>
         </section>
-      </ListState>
 
-      <section className="space-y-4">
-        <h2 className="text-title">Dashboard</h2>
-        <p className="text-small text-muted">XP, credits, and quests from real events — not a random heatmap.</p>
-        <DashboardPanel />
-      </section>
+        <section className="space-y-2">
+          <h2 className="text-title">Dashboard</h2>
+          <p className="text-small text-muted">XP, quests, heatmap, and the credit ledger from real events.</p>
+          <DashboardPanel />
+        </section>
+      </ListState>
     </div>
   );
 }

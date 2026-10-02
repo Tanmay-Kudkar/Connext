@@ -29,7 +29,7 @@ export async function buildApp() {
   });
   await app.register(cookie);
   await app.register(rateLimit, {
-    max: 200,
+    max: 400,
     timeWindow: "1 minute",
   });
   await app.register(swagger, {
