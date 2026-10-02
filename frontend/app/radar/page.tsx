@@ -31,7 +31,7 @@ export default function RadarPage() {
         </p>
       )}
       {note && <p className="mt-2 text-small text-muted">{note}</p>}
-      <ul className="mt-6">
+      <ul className="mt-6" data-testid="radar-list">
         {radar.map((row) => (
           <li key={row.topic} className="flex items-center justify-between post-row">
             <span>{row.topic}</span>

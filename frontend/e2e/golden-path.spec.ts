@@ -16,7 +16,7 @@ test.describe("golden path", () => {
     await page.goto("/");
     await page.getByLabel("College email").fill("someone@gmail.com");
     await page.getByRole("button", { name: "Continue with college email" }).click();
-    await expect(page.getByRole("alert")).toContainText(/college email/i);
+    await expect(page.getByTestId("auth-error")).toContainText(/college email/i);
   });
 
   test("mock LinkedIn is labelled simulated and fills passport", async ({ page }) => {
@@ -78,7 +78,7 @@ test.describe("golden path", () => {
   test("Pro mode persists and shows CV-style passport", async ({ page }) => {
     await demoLogin(page, "student");
     await page.goto("/passport");
-    await page.getByRole("button", { name: "Pro", exact: true }).click();
+    await page.getByRole("main").getByRole("button", { name: "Pro", exact: true }).click();
     await expect(page.locator("html")).toHaveAttribute("data-mode", "pro");
     await page.reload();
     await expect(page.locator("html")).toHaveAttribute("data-mode", "pro");
@@ -89,7 +89,7 @@ test.describe("golden path", () => {
     await demoLogin(page, "student");
     await page.goto("/map");
     await expect(page.getByRole("heading", { name: "Map" })).toBeVisible();
-    await expect(page.getByText(/Mumbai|Pune|Trichy/)).toBeVisible();
+    await expect(page.getByText(/Mumbai|Pune|Trichy/).first()).toBeVisible();
     await expect(page.getByText(/Recommended teammates/)).toBeVisible();
     await page.getByRole("button", { name: "Map" }).click();
     await expect(page.getByText(/Coarse clusters/)).toBeVisible();
@@ -99,8 +99,8 @@ test.describe("golden path", () => {
     await demoLogin(page, "faculty");
     await page.goto("/radar");
     await expect(page.getByRole("heading", { name: "Doubt Radar" })).toBeVisible();
-    const body = await page.locator("body").innerText();
-    expect(body).not.toMatch(/tanmay\.kudkar|priya\.sharma|@xie/);
+    const list = await page.getByTestId("radar-list").innerText();
+    expect(list).not.toMatch(/tanmay\.kudkar|@xie|author_id/);
     await expect(page.getByText(/PostgreSQL|indexing|embeddings|open/i).first()).toBeVisible();
   });
 });

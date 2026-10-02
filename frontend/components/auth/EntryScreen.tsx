@@ -204,7 +204,7 @@ export function EntryScreen() {
       )}
 
       {error && (
-        <p className="mt-4 text-small" role="alert" style={{ color: "var(--error)" }}>
+        <p className="mt-4 text-small" role="alert" data-testid="auth-error" style={{ color: "var(--error)" }}>
           {error}
         </p>
       )}
