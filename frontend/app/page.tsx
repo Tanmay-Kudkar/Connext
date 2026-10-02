@@ -80,7 +80,7 @@ export default function Home() {
             </Link>
 
             <Link
-              href="#explore"
+              href="/communities"
               className="rounded-xl border border-white/15 bg-white/5 px-7 py-3.5 font-semibold text-white transition hover:bg-white/10"
             >
               Explore Connext

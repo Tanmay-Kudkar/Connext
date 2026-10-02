@@ -4,8 +4,14 @@ import Navbar from "@/components/layout/Navbar";
 import Footer from "@/components/layout/Footer";
 
 export const metadata: Metadata = {
-  title: "Connext",
-  description: "Ask without fear. Get known for what you give.",
+  title: "Connext — Ask without fear. Get known for what you give.",
+  description:
+    "India's academic collaboration network. Verified-anonymous Q&A, outcome-based credits, AI teammate matching, and cross-campus communities.",
+  openGraph: {
+    title: "Connext",
+    description: "Ask without fear. Get known for what you give.",
+    type: "website",
+  },
 };
 
 export default function RootLayout({
@@ -14,8 +20,8 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
-      <body className="min-h-screen bg-black text-white antialiased">
+    <html lang="en" className="dark">
+      <body className="antialiased">
         <Navbar />
         <main>{children}</main>
         <Footer />
