@@ -1,3 +1,4 @@
+import "dotenv/config";
 import { env } from "./env.js";
 import { isInMemoryDb } from "./db/index.js";
 import { migrate } from "./db/migrate.js";

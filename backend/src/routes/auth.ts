@@ -13,8 +13,11 @@ import {
   signSession,
 } from "../plugins/auth.js";
 import { publicUser } from "../serializers.js";
+import { sendOtpEmail } from "../services/email.js";
 
-const DEMO_OTP = "123456";
+function generateOtp() {
+  return Math.floor(100000 + Math.random() * 900000).toString();
+}
 const otpStore = new Map<string, { code: string; expires: number }>();
 const otpHits = new Map<string, { n: number; start: number }>();
 
@@ -65,11 +68,17 @@ export async function authRoutes(app: FastifyInstance) {
     const email = body.email.toLowerCase();
     if (!(await isCollegeEmail(email))) throw Errors.collegeEmailRejected();
     rateLimit(email);
-    otpStore.set(email, { code: DEMO_OTP, expires: Date.now() + 10 * 60_000 });
+    
+    const otp = generateOtp();
+    otpStore.set(email, { code: otp, expires: Date.now() + 10 * 60_000 });
+    
     request.log.info({ email, requestId: request.id }, "otp_requested");
+    
+    // Send real email via SMTP (will fallback to console log if SMTP not configured)
+    await sendOtpEmail(email, otp);
+    
     return {
-      message: `OTP sent to ${email} (demo: use ${DEMO_OTP})`,
-      demoOtp: env.NODE_ENV === "production" ? undefined : DEMO_OTP,
+      message: `OTP sent to ${email}`,
     };
   });
 

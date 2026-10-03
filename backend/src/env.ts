@@ -24,6 +24,12 @@ export const env = {
   EMBEDDING_FALLBACK_BASE_URL: process.env.EMBEDDING_FALLBACK_BASE_URL ?? "",
   EMBEDDING_FALLBACK_API_KEY: process.env.EMBEDDING_FALLBACK_API_KEY ?? "",
   EMBEDDING_FALLBACK_MODEL: process.env.EMBEDDING_FALLBACK_MODEL ?? "",
+  GITHUB_TOKEN:         process.env.GITHUB_TOKEN         ?? "",
+  GITHUB_CLIENT_ID:     process.env.GITHUB_CLIENT_ID     ?? "",
+  GITHUB_CLIENT_SECRET: process.env.GITHUB_CLIENT_SECRET ?? "",
+  GITHUB_CALLBACK_URL:  process.env.GITHUB_CALLBACK_URL  ?? "http://localhost:3001/api/auth/github/callback",
+  GITHUB_DATA_OWNER:    process.env.GITHUB_DATA_OWNER    ?? "Tanmay-Kudkar",
+  GITHUB_DATA_REPO:     process.env.GITHUB_DATA_REPO     ?? "Connext-Community",
 };
 
 export const isProd = env.NODE_ENV === "production";

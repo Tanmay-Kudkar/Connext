@@ -13,12 +13,24 @@ import { postRoutes } from "./routes/posts.js";
 import { creditRoutes } from "./routes/credits.js";
 import { aiRoutes } from "./routes/ai.js";
 import { integrationRoutes } from "./routes/integrations.js";
+import { githubRoutes } from "./routes/github.js";
 
 export async function buildApp() {
   const app = Fastify({
     logger: {
       level: process.env.LOG_LEVEL ?? "info",
       redact: ["req.headers.cookie", "req.headers.authorization"],
+      ...(process.env.NODE_ENV !== "production"
+        ? {
+            transport: {
+              target: "pino-pretty",
+              options: {
+                translateTime: "HH:MM:ss Z",
+                ignore: "pid,hostname,reqId",
+              },
+            },
+          }
+        : {}),
     },
     genReqId: () => crypto.randomUUID(),
   });
@@ -47,6 +59,7 @@ export async function buildApp() {
   await creditRoutes(app);
   await aiRoutes(app);
   await integrationRoutes(app);
+  await githubRoutes(app);
 
   app.get("/health", async () => ({ status: "ok", service: "connext-api" }));
   app.get("/api/health", async () => ({ status: "ok", service: "connext-api" }));

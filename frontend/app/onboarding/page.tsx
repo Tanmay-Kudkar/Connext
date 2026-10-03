@@ -1,9 +1,107 @@
 "use client";
 
-import { ArrowRight, GraduationCap, MapPin, User } from "lucide-react";
-import Link from "next/link";
+import { ArrowLeft, ArrowRight, GraduationCap, Loader2, MapPin, User } from "lucide-react";
+import { useRouter } from "next/navigation";
+import { useState, useEffect } from "react";
 
 export default function OnboardingPage() {
+    const router = useRouter();
+
+    const [name, setName] = useState("");
+    const [role, setRole] = useState("");
+    const [institution, setInstitution] = useState("");
+    const [course, setCourse] = useState("");
+    const [year, setYear] = useState("");
+    const [location, setLocation] = useState("");
+    const [loading, setLoading] = useState(false);
+    const [apiError, setApiError] = useState<string | null>(null);
+
+    const [errors, setErrors] = useState<{
+        name?: string;
+        role?: string;
+        institution?: string;
+        course?: string;
+        year?: string;
+        location?: string;
+    }>({});
+
+    useEffect(() => {
+        const sName = sessionStorage.getItem("ob_name");
+        const sRole = sessionStorage.getItem("ob_role");
+        const sInstitution = sessionStorage.getItem("ob_institution");
+        const sCourse = sessionStorage.getItem("ob_course");
+        const sYear = sessionStorage.getItem("ob_year");
+        const sLocation = sessionStorage.getItem("ob_location");
+
+        if (sName) setName(sName);
+        if (sRole) setRole(sRole);
+        if (sInstitution) setInstitution(sInstitution);
+        if (sCourse) setCourse(sCourse);
+        if (sYear) setYear(sYear);
+        if (sLocation) setLocation(sLocation);
+    }, []);
+
+    const validate = () => {
+        const newErrors: {
+            name?: string;
+            role?: string;
+            institution?: string;
+            course?: string;
+            year?: string;
+            location?: string;
+        } = {};
+
+        if (!name.trim()) {
+            newErrors.name = "Full name is required";
+        } else if (name.trim().length < 2) {
+            newErrors.name = "Full name must be at least 2 characters";
+        }
+
+        if (!role) {
+            newErrors.role = "Please select your role";
+        }
+
+        if (!institution.trim()) {
+            newErrors.institution = "Institution is required";
+        }
+
+        if (!course.trim()) {
+            newErrors.course = "Course / Program is required";
+        }
+
+        if (!year) {
+            newErrors.year = "Please select your academic year";
+        }
+
+        if (!location.trim()) {
+            newErrors.location = "Location is required";
+        }
+
+        return newErrors;
+    };
+
+    const handleSubmit = async (e: React.FormEvent) => {
+        e.preventDefault();
+        setApiError(null);
+        const validationErrors = validate();
+        setErrors(validationErrors);
+
+        if (Object.keys(validationErrors).length > 0) return;
+
+        setLoading(true);
+        try {
+            // All data is already saved in sessionStorage from onChange handlers.
+            // Navigate to verification step where the OTP will be entered to finalize account creation.
+            router.push("/verify");
+        } catch (err: unknown) {
+            const msg = err instanceof Error ? err.message : "Something went wrong.";
+            setApiError(msg);
+        } finally {
+            setLoading(false);
+        }
+    };
+
+
     return (
         <main className="min-h-[calc(100vh-64px)] bg-black px-6 py-12 text-white">
             <div className="mx-auto max-w-2xl">
@@ -24,7 +122,17 @@ export default function OnboardingPage() {
                 </div>
 
                 {/* Progress */}
-                <div className="mb-8">
+                <div className="relative mb-8">
+                    {/* Back Button */}
+                    <button
+                        type="button"
+                        onClick={() => router.back()}
+                        className="mb-4 flex items-center gap-2 rounded-xl border border-white/10 bg-white/5 px-3.5 py-2 text-sm font-medium text-gray-400 transition hover:border-white/20 hover:bg-white/10 hover:text-white md:absolute md:-left-28 md:top-0 md:mb-0"
+                    >
+                        <ArrowLeft size={16} />
+                        Back
+                    </button>
+
                     <div className="mb-2 flex items-center justify-between text-xs">
                         <span className="text-white">Step 1 of 3</span>
                         <span className="text-gray-500">Academic Identity</span>
@@ -37,7 +145,7 @@ export default function OnboardingPage() {
 
                 {/* Form Card */}
                 <div className="rounded-3xl border border-white/10 bg-white/[0.04] p-6 shadow-2xl backdrop-blur-xl sm:p-8">
-                    <form className="space-y-6">
+                    <form onSubmit={handleSubmit} className="space-y-6">
                         {/* Full Name */}
                         <div>
                             <label
@@ -56,10 +164,26 @@ export default function OnboardingPage() {
                                 <input
                                     id="name"
                                     type="text"
+                                    required
+                                    value={name}
+                                    onChange={(e) => {
+                                        setName(e.target.value);
+                                        sessionStorage.setItem("ob_name", e.target.value);
+                                        if (errors.name) {
+                                            setErrors((prev) => ({ ...prev, name: undefined }));
+                                        }
+                                    }}
                                     placeholder="Enter your full name"
-                                    className="w-full rounded-xl border border-white/10 bg-white/5 py-3 pl-11 pr-4 text-sm text-white outline-none transition placeholder:text-gray-600 focus:border-white/30 focus:bg-white/[0.07]"
+                                    className={`w-full rounded-xl border bg-white/5 py-3 pl-11 pr-4 text-sm text-white outline-none transition placeholder:text-gray-600 focus:bg-white/[0.07] ${
+                                        errors.name
+                                            ? "border-red-500/70 focus:border-red-500"
+                                            : "border-white/10 focus:border-white/30"
+                                    }`}
                                 />
                             </div>
+                            {errors.name && (
+                                <p className="mt-1.5 text-xs text-red-400">{errors.name}</p>
+                            )}
                         </div>
 
                         {/* Role */}
@@ -73,8 +197,20 @@ export default function OnboardingPage() {
 
                             <select
                                 id="role"
-                                defaultValue=""
-                                className="w-full rounded-xl border border-white/10 bg-white/5 px-4 py-3 text-sm text-gray-300 outline-none transition focus:border-white/30 focus:bg-white/[0.07]"
+                                required
+                                value={role}
+                                onChange={(e) => {
+                                    setRole(e.target.value);
+                                    sessionStorage.setItem("ob_role", e.target.value);
+                                    if (errors.role) {
+                                        setErrors((prev) => ({ ...prev, role: undefined }));
+                                    }
+                                }}
+                                className={`w-full rounded-xl border bg-white/5 px-4 py-3 text-sm text-gray-300 outline-none transition focus:bg-white/[0.07] ${
+                                    errors.role
+                                        ? "border-red-500/70 focus:border-red-500"
+                                        : "border-white/10 focus:border-white/30"
+                                }`}
                             >
                                 <option value="" disabled className="bg-black">
                                     Select your role
@@ -92,6 +228,9 @@ export default function OnboardingPage() {
                                     Mentor
                                 </option>
                             </select>
+                            {errors.role && (
+                                <p className="mt-1.5 text-xs text-red-400">{errors.role}</p>
+                            )}
                         </div>
 
                         {/* Institution */}
@@ -112,10 +251,26 @@ export default function OnboardingPage() {
                                 <input
                                     id="institution"
                                     type="text"
+                                    required
+                                    value={institution}
+                                    onChange={(e) => {
+                                        setInstitution(e.target.value);
+                                        sessionStorage.setItem("ob_institution", e.target.value);
+                                        if (errors.institution) {
+                                            setErrors((prev) => ({ ...prev, institution: undefined }));
+                                        }
+                                    }}
                                     placeholder="Enter your college or institution"
-                                    className="w-full rounded-xl border border-white/10 bg-white/5 py-3 pl-11 pr-4 text-sm text-white outline-none transition placeholder:text-gray-600 focus:border-white/30 focus:bg-white/[0.07]"
+                                    className={`w-full rounded-xl border bg-white/5 py-3 pl-11 pr-4 text-sm text-white outline-none transition placeholder:text-gray-600 focus:bg-white/[0.07] ${
+                                        errors.institution
+                                            ? "border-red-500/70 focus:border-red-500"
+                                            : "border-white/10 focus:border-white/30"
+                                    }`}
                                 />
                             </div>
+                            {errors.institution && (
+                                <p className="mt-1.5 text-xs text-red-400">{errors.institution}</p>
+                            )}
                         </div>
 
                         {/* Course / Department */}
@@ -131,9 +286,25 @@ export default function OnboardingPage() {
                                 <input
                                     id="course"
                                     type="text"
+                                    required
+                                    value={course}
+                                    onChange={(e) => {
+                                        setCourse(e.target.value);
+                                        sessionStorage.setItem("ob_course", e.target.value);
+                                        if (errors.course) {
+                                            setErrors((prev) => ({ ...prev, course: undefined }));
+                                        }
+                                    }}
                                     placeholder="e.g. Computer Engineering"
-                                    className="w-full rounded-xl border border-white/10 bg-white/5 px-4 py-3 text-sm text-white outline-none transition placeholder:text-gray-600 focus:border-white/30 focus:bg-white/[0.07]"
+                                    className={`w-full rounded-xl border bg-white/5 px-4 py-3 text-sm text-white outline-none transition placeholder:text-gray-600 focus:bg-white/[0.07] ${
+                                        errors.course
+                                            ? "border-red-500/70 focus:border-red-500"
+                                            : "border-white/10 focus:border-white/30"
+                                    }`}
                                 />
+                                {errors.course && (
+                                    <p className="mt-1.5 text-xs text-red-400">{errors.course}</p>
+                                )}
                             </div>
 
                             <div>
@@ -146,8 +317,20 @@ export default function OnboardingPage() {
 
                                 <select
                                     id="year"
-                                    defaultValue=""
-                                    className="w-full rounded-xl border border-white/10 bg-white/5 px-4 py-3 text-sm text-gray-300 outline-none transition focus:border-white/30 focus:bg-white/[0.07]"
+                                    required
+                                    value={year}
+                                    onChange={(e) => {
+                                        setYear(e.target.value);
+                                        sessionStorage.setItem("ob_year", e.target.value);
+                                        if (errors.year) {
+                                            setErrors((prev) => ({ ...prev, year: undefined }));
+                                        }
+                                    }}
+                                    className={`w-full rounded-xl border bg-white/5 px-4 py-3 text-sm text-gray-300 outline-none transition focus:bg-white/[0.07] ${
+                                        errors.year
+                                            ? "border-red-500/70 focus:border-red-500"
+                                            : "border-white/10 focus:border-white/30"
+                                    }`}
                                 >
                                     <option value="" disabled className="bg-black">
                                         Select year
@@ -165,6 +348,9 @@ export default function OnboardingPage() {
                                         4th Year
                                     </option>
                                 </select>
+                                {errors.year && (
+                                    <p className="mt-1.5 text-xs text-red-400">{errors.year}</p>
+                                )}
                             </div>
                         </div>
 
@@ -186,20 +372,53 @@ export default function OnboardingPage() {
                                 <input
                                     id="location"
                                     type="text"
+                                    required
+                                    value={location}
+                                    onChange={(e) => {
+                                        setLocation(e.target.value);
+                                        sessionStorage.setItem("ob_location", e.target.value);
+                                        if (errors.location) {
+                                            setErrors((prev) => ({ ...prev, location: undefined }));
+                                        }
+                                    }}
                                     placeholder="City, State"
-                                    className="w-full rounded-xl border border-white/10 bg-white/5 py-3 pl-11 pr-4 text-sm text-white outline-none transition placeholder:text-gray-600 focus:border-white/30 focus:bg-white/[0.07]"
+                                    className={`w-full rounded-xl border bg-white/5 py-3 pl-11 pr-4 text-sm text-white outline-none transition placeholder:text-gray-600 focus:bg-white/[0.07] ${
+                                        errors.location
+                                            ? "border-red-500/70 focus:border-red-500"
+                                            : "border-white/10 focus:border-white/30"
+                                    }`}
                                 />
                             </div>
+                            {errors.location && (
+                                <p className="mt-1.5 text-xs text-red-400">{errors.location}</p>
+                            )}
                         </div>
 
+                        {/* API Error */}
+                        {apiError && (
+                            <div className="rounded-xl border border-red-500/30 bg-red-500/10 px-4 py-3 text-sm text-red-400">
+                                {apiError}
+                            </div>
+                        )}
+
                         {/* Continue */}
-                        <Link
-                            href="/verify"
-                            className="flex w-full items-center justify-center gap-2 rounded-xl bg-white px-6 py-3.5 font-semibold text-black transition hover:bg-gray-200"
+                        <button
+                            type="submit"
+                            disabled={loading}
+                            className="flex w-full items-center justify-center gap-2 rounded-xl bg-white px-6 py-3.5 font-semibold text-black transition hover:bg-gray-200 disabled:opacity-60 disabled:cursor-not-allowed"
                         >
-                            Continue
-                            <ArrowRight size={18} />
-                        </Link>
+                            {loading ? (
+                                <>
+                                    <Loader2 size={18} className="animate-spin" />
+                                    Saving...
+                                </>
+                            ) : (
+                                <>
+                                    Continue
+                                    <ArrowRight size={18} />
+                                </>
+                            )}
+                        </button>
                     </form>
                 </div>
 

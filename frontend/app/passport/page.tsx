@@ -1,14 +1,48 @@
+"use client";
+
 import {
     BadgeCheck,
     GitBranch,
     GraduationCap,
     MapPin,
     Pencil,
+    Loader2,
 } from "lucide-react";
+import { useEffect, useState } from "react";
+import { getMe, fetchGithubProfile, GithubProfile, PublicUser } from "@/lib/api";
 
 import ModeToggle from "@/components/shared/ModeToggle";
 
 export default function PassportPage() {
+    const [user, setUser] = useState<PublicUser | null>(null);
+    const [ghProfile, setGhProfile] = useState<GithubProfile | null>(null);
+    const [loading, setLoading] = useState(true);
+
+    useEffect(() => {
+        getMe().then(({ user }) => {
+            setUser(user);
+            if (user.handle) {
+                fetchGithubProfile(user.handle).then(setGhProfile).catch(() => {});
+            }
+        }).catch(() => {}).finally(() => setLoading(false));
+    }, []);
+
+    if (loading) {
+        return (
+            <div className="flex min-h-screen items-center justify-center bg-black text-white">
+                <Loader2 className="h-8 w-8 animate-spin text-gray-500" />
+            </div>
+        );
+    }
+
+    if (!user) {
+        return (
+            <div className="flex min-h-screen items-center justify-center bg-black text-white">
+                <p>Please log in to view your passport.</p>
+            </div>
+        );
+    }
+
     return (
         <div className="min-h-screen bg-black px-6 py-12 text-white">
             <div className="mx-auto max-w-6xl">
@@ -37,15 +71,23 @@ export default function PassportPage() {
                         <div className="flex flex-col gap-5 sm:flex-row sm:items-center">
 
                             {/* Avatar */}
-                            <div className="flex h-24 w-24 shrink-0 items-center justify-center rounded-full bg-white text-3xl font-bold text-black">
-                                AR
-                            </div>
+                            {ghProfile?.profile.avatar_url ? (
+                                <img
+                                    src={ghProfile.profile.avatar_url}
+                                    alt={user.displayName}
+                                    className="h-24 w-24 shrink-0 rounded-full object-cover"
+                                />
+                            ) : (
+                                <div className="flex h-24 w-24 shrink-0 items-center justify-center rounded-full bg-white text-3xl font-bold text-black">
+                                    {user.initials}
+                                </div>
+                            )}
 
                             {/* Details */}
                             <div>
                                 <div className="flex flex-wrap items-center gap-2">
                                     <h2 className="text-2xl font-bold">
-                                        Alex Sharma
+                                        {user.displayName}
                                     </h2>
 
                                     {/* Verification */}
@@ -56,7 +98,7 @@ export default function PassportPage() {
                                 </div>
 
                                 <p className="mt-1 text-gray-300">
-                                    Computer Science Engineering Student
+                                    {user.bio || (ghProfile?.profile.bio) || `${user.role} at ${user.institution?.name || "Institution"}`}
                                 </p>
 
                                 <div className="mt-3 flex flex-wrap gap-4 text-sm text-gray-500">
@@ -64,13 +106,13 @@ export default function PassportPage() {
                                     {/* College */}
                                     <span className="flex items-center gap-2">
                                         <GraduationCap size={16} />
-                                        Computer Science & Engineering
+                                        {user.institution?.name || "Engineering"}
                                     </span>
 
                                     {/* Location */}
                                     <span className="flex items-center gap-2">
                                         <MapPin size={16} />
-                                        India
+                                        {ghProfile?.profile.location || "India"}
                                     </span>
 
                                 </div>

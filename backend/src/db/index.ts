@@ -51,22 +51,52 @@ async function createPool(): Promise<pg.Pool> {
 
     const pgAdapter = mem.adapters.createPg();
 
-    // Strip config.types so pg-mem doesn't throw on query.types.getTypeParser
+    // Strip config.types and handle rowMode="array" so pg-mem doesn't throw
     const origClientQuery = pgAdapter.Client.prototype.query;
     pgAdapter.Client.prototype.query = function (config: any, values: any, cb: any) {
+      let isArrayMode = false;
       if (config && typeof config === "object") {
         delete config.types;
+        if (config.rowMode === "array") {
+          isArrayMode = true;
+          delete config.rowMode;
+        }
       }
-      return origClientQuery.call(this, config, values, cb);
+      
+      const res = origClientQuery.call(this, config, values, cb);
+      if (res && typeof res.then === "function") {
+        return res.then((r: any) => {
+          if (isArrayMode && r && Array.isArray(r.rows)) {
+            r.rows = r.rows.map((row: any) => Object.values(row));
+          }
+          return r;
+        });
+      }
+      return res;
     };
 
     const memPool = new pgAdapter.Pool() as any;
     const origPoolQuery = memPool.query;
     memPool.query = function (config: any, values: any, cb: any) {
+      let isArrayMode = false;
       if (config && typeof config === "object") {
         delete config.types;
+        if (config.rowMode === "array") {
+          isArrayMode = true;
+          delete config.rowMode;
+        }
       }
-      return origPoolQuery.call(this, config, values, cb);
+
+      const res = origPoolQuery.call(this, config, values, cb);
+      if (res && typeof res.then === "function") {
+        return res.then((r: any) => {
+          if (isArrayMode && r && Array.isArray(r.rows)) {
+            r.rows = r.rows.map((row: any) => Object.values(row));
+          }
+          return r;
+        });
+      }
+      return res;
     };
 
     return memPool as unknown as pg.Pool;
