@@ -3,6 +3,7 @@ import "./globals.css";
 import Navbar from "@/components/layout/Navbar";
 import Footer from "@/components/layout/Footer";
 import { ThemeProvider } from "@/context/ThemeContext";
+import { AuthProvider } from "@/context/AuthContext";
 
 export const metadata: Metadata = {
   title: "Connext",
@@ -43,11 +44,13 @@ export default function RootLayout({
         <script dangerouslySetInnerHTML={{ __html: themeInitScript }} />
       </head>
       <body className="min-h-screen bg-white text-gray-900 transition-colors duration-200 dark:bg-black dark:text-white antialiased">
-        <ThemeProvider>
-          <Navbar />
-          <main>{children}</main>
-          <Footer />
-        </ThemeProvider>
+        <AuthProvider>
+          <ThemeProvider>
+            <Navbar />
+            <main>{children}</main>
+            <Footer />
+          </ThemeProvider>
+        </AuthProvider>
       </body>
     </html>
   );

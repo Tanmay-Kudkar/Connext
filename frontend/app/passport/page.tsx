@@ -1,4 +1,7 @@
+import Link from "next/link";
+
 import {
+    ArrowRight,
     BadgeCheck,
     GitBranch,
     GraduationCap,
@@ -272,6 +275,7 @@ export default function PassportPage() {
                                     <span className="shrink-0 rounded-lg border border-white/10 px-2.5 py-1 text-xs text-gray-400">
                                         2026
                                     </span>
+
                                 </div>
 
                                 <div className="mt-3 flex flex-wrap gap-2">
@@ -307,6 +311,7 @@ export default function PassportPage() {
                                     <span className="shrink-0 rounded-lg border border-white/10 px-2.5 py-1 text-xs text-gray-400">
                                         2026
                                     </span>
+
                                 </div>
 
                                 <div className="mt-3 flex flex-wrap gap-2">
@@ -330,6 +335,7 @@ export default function PassportPage() {
                     {/* Achievements */}
                     <div className="rounded-2xl border border-white/10 bg-white/[0.04] p-6">
                         <div className="flex items-center justify-between">
+
                             <h3 className="text-lg font-semibold">
                                 Achievements
                             </h3>
@@ -337,12 +343,14 @@ export default function PassportPage() {
                             <span className="text-xs text-gray-500">
                                 4 achievements
                             </span>
+
                         </div>
 
                         <div className="mt-5 space-y-3">
 
                             {/* Achievement 1 */}
                             <div className="flex items-center gap-4 rounded-xl border border-white/10 bg-white/5 p-4">
+
                                 <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-white/10 text-lg">
                                     🏆
                                 </div>
@@ -356,10 +364,12 @@ export default function PassportPage() {
                                         RepoForge 2026
                                     </p>
                                 </div>
+
                             </div>
 
                             {/* Achievement 2 */}
                             <div className="flex items-center gap-4 rounded-xl border border-white/10 bg-white/5 p-4">
+
                                 <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-white/10 text-lg">
                                     🚀
                                 </div>
@@ -373,10 +383,12 @@ export default function PassportPage() {
                                         Academic collaboration platform
                                     </p>
                                 </div>
+
                             </div>
 
                             {/* Achievement 3 */}
                             <div className="flex items-center gap-4 rounded-xl border border-white/10 bg-white/5 p-4">
+
                                 <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-white/10 text-lg">
                                     📜
                                 </div>
@@ -390,10 +402,12 @@ export default function PassportPage() {
                                         Full-stack development
                                     </p>
                                 </div>
+
                             </div>
 
                             {/* Achievement 4 */}
                             <div className="flex items-center gap-4 rounded-xl border border-white/10 bg-white/5 p-4">
+
                                 <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-white/10 text-lg">
                                     ⭐
                                 </div>
@@ -407,6 +421,7 @@ export default function PassportPage() {
                                         Academic knowledge sharing
                                     </p>
                                 </div>
+
                             </div>
 
                         </div>
@@ -418,6 +433,7 @@ export default function PassportPage() {
                 <div className="mt-8 rounded-2xl border border-white/10 bg-white/[0.04] p-6">
 
                     <div className="flex items-center justify-between">
+
                         <div>
                             <h3 className="text-lg font-semibold">
                                 Contribution History
@@ -431,18 +447,21 @@ export default function PassportPage() {
                         <span className="rounded-lg border border-white/10 bg-white/5 px-3 py-1.5 text-xs text-gray-400">
                             165 points
                         </span>
+
                     </div>
 
                     <div className="mt-6 space-y-4">
 
                         {/* Contribution 1 */}
                         <div className="flex gap-4 rounded-xl border border-white/10 bg-white/5 p-4">
+
                             <div className="mt-1 flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-white/10">
                                 💡
                             </div>
 
                             <div className="flex-1">
                                 <div className="flex flex-col justify-between gap-1 sm:flex-row">
+
                                     <h4 className="text-sm font-semibold">
                                         Answered a database question
                                     </h4>
@@ -450,22 +469,26 @@ export default function PassportPage() {
                                     <span className="text-xs text-gray-500">
                                         +25 points
                                     </span>
+
                                 </div>
 
                                 <p className="mt-1 text-xs text-gray-500">
                                     Helped another student understand database normalization.
                                 </p>
                             </div>
+
                         </div>
 
                         {/* Contribution 2 */}
                         <div className="flex gap-4 rounded-xl border border-white/10 bg-white/5 p-4">
+
                             <div className="mt-1 flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-white/10">
                                 🤝
                             </div>
 
                             <div className="flex-1">
                                 <div className="flex flex-col justify-between gap-1 sm:flex-row">
+
                                     <h4 className="text-sm font-semibold">
                                         Helped a student with React
                                     </h4>
@@ -473,22 +496,26 @@ export default function PassportPage() {
                                     <span className="text-xs text-gray-500">
                                         +40 points
                                     </span>
+
                                 </div>
 
                                 <p className="mt-1 text-xs text-gray-500">
                                     Provided guidance on React components and state management.
                                 </p>
                             </div>
+
                         </div>
 
                         {/* Contribution 3 */}
                         <div className="flex gap-4 rounded-xl border border-white/10 bg-white/5 p-4">
+
                             <div className="mt-1 flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-white/10">
                                 🚀
                             </div>
 
                             <div className="flex-1">
                                 <div className="flex flex-col justify-between gap-1 sm:flex-row">
+
                                     <h4 className="text-sm font-semibold">
                                         Contributed to Connext
                                     </h4>
@@ -496,15 +523,28 @@ export default function PassportPage() {
                                     <span className="text-xs text-gray-500">
                                         +100 points
                                     </span>
+
                                 </div>
 
                                 <p className="mt-1 text-xs text-gray-500">
                                     Contributed to the development of the Connext platform.
                                 </p>
                             </div>
+
                         </div>
 
                     </div>
+                </div>
+
+                {/* Continue to Dashboard */}
+                <div className="mt-8 flex justify-center">
+                    <Link
+                        href="/dashboard"
+                        className="flex w-full max-w-md items-center justify-center gap-2 rounded-xl bg-white px-8 py-3.5 font-semibold text-black transition hover:bg-gray-200"
+                    >
+                        Continue to Dashboard
+                        <ArrowRight size={18} />
+                    </Link>
                 </div>
 
             </div>

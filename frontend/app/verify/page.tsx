@@ -1,14 +1,38 @@
 "use client";
 
 import Link from "next/link";
-import { ArrowRight, CheckCircle2, GraduationCap, Mail } from "lucide-react";
+import {
+    ArrowRight,
+    CheckCircle2,
+    GraduationCap,
+    Mail,
+} from "lucide-react";
 import { useState } from "react";
 
 export default function VerifyPage() {
     const [code, setCode] = useState("");
     const [sent, setSent] = useState(false);
 
+    // Institution email validation
+    const [institutionEmail, setInstitutionEmail] = useState("");
+    const [emailError, setEmailError] = useState("");
+
     const handleSendCode = () => {
+        const email = institutionEmail.trim();
+
+        if (!email) {
+            setEmailError("Please enter your institution email.");
+            return;
+        }
+
+        if (!/^[^\s@]+@edu\.in$/i.test(email)) {
+            setEmailError(
+                "Please use your official institution email ending with @edu.in."
+            );
+            return;
+        }
+
+        setEmailError("");
         setSent(true);
     };
 
@@ -57,9 +81,7 @@ export default function VerifyPage() {
                         <div className="mb-6 rounded-2xl border border-gray-200 bg-gray-50 p-5 dark:border-white/10 dark:bg-white/[0.03]">
                             <div className="flex items-start gap-4">
                                 <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-gray-200/70 text-gray-800 dark:bg-white/10 dark:text-gray-300">
-                                    <GraduationCap
-                                        size={21}
-                                    />
+                                    <GraduationCap size={21} />
                                 </div>
 
                                 <div>
@@ -69,7 +91,8 @@ export default function VerifyPage() {
 
                                     <p className="mt-1 text-sm leading-6 text-gray-600 dark:text-gray-400">
                                         Use your official college or university email address
-                                        to verify your academic identity.
+                                        ending with <strong>@edu.in</strong> to verify your
+                                        academic identity.
                                     </p>
                                 </div>
                             </div>
@@ -93,14 +116,29 @@ export default function VerifyPage() {
                                 <input
                                     id="institutionEmail"
                                     type="email"
-                                    placeholder="yourname@college.edu"
-                                    className="w-full rounded-xl border border-gray-200 bg-gray-50 py-3 pl-11 pr-4 text-sm text-gray-900 outline-none transition placeholder:text-gray-400 focus:border-gray-400 focus:bg-white dark:border-white/10 dark:bg-white/5 dark:text-white dark:placeholder:text-gray-600 dark:focus:border-white/30 dark:focus:bg-white/[0.07]"
+                                    value={institutionEmail}
+                                    onChange={(event) => {
+                                        setInstitutionEmail(event.target.value);
+                                        setEmailError("");
+                                    }}
+                                    placeholder="yourname@college.edu.in"
+                                    className={`w-full rounded-xl border bg-gray-50 py-3 pl-11 pr-4 text-sm text-gray-900 outline-none transition placeholder:text-gray-400 focus:bg-white dark:bg-white/5 dark:text-white dark:placeholder:text-gray-600 dark:focus:bg-white/[0.07] ${emailError
+                                        ? "border-red-500/60 focus:border-red-500"
+                                        : "border-gray-200 focus:border-gray-400 dark:border-white/10 dark:focus:border-white/30"
+                                        }`}
                                 />
                             </div>
 
-                            <p className="mt-2 text-xs text-gray-500">
-                                Example: student@university.edu
-                            </p>
+                            {emailError ? (
+                                <p className="mt-2 text-xs text-red-500 dark:text-red-400">
+                                    {emailError}
+                                </p>
+                            ) : (
+                                <p className="mt-2 text-xs text-gray-500">
+                                    Only official institution emails ending with @edu.in are
+                                    accepted.
+                                </p>
+                            )}
                         </div>
 
                         {/* Send Code */}
@@ -116,6 +154,7 @@ export default function VerifyPage() {
                         {/* Verification Code */}
                         {sent && (
                             <div className="mt-6 border-t border-gray-200 pt-6 dark:border-white/10">
+
                                 <label
                                     htmlFor="verificationCode"
                                     className="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-300"
@@ -196,6 +235,7 @@ export default function VerifyPage() {
                         Having trouble verifying your institution? You can continue
                         and complete verification later.
                     </p>
+
                 </div>
             </div>
         </main>

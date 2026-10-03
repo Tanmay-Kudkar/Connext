@@ -1,6 +1,5 @@
 "use client";
 
-import { useEffect, useState } from "react";
 import Link from "next/link";
 import {
     ArrowRight,
@@ -8,8 +7,6 @@ import {
     BookOpen,
     Briefcase,
     ChevronRight,
-    CircleHelp,
-    GitBranch,
     GraduationCap,
     MessageSquare,
     Plus,
@@ -22,58 +19,8 @@ import { useTheme } from "@/context/ThemeContext";
 import ThemeToggle from "@/components/shared/ThemeToggle";
 import RoleGuard from "@/components/auth/RoleGuard";
 
-type AcademicProfile = {
-    name?: string;
-    role?: "student" | "faculty" | "researcher" | "mentor";
-    institution?: string;
-    course?: string;
-    year?: string;
-    location?: string;
-};
-
-function StudentDashboardContent() {
+function FacultyDashboardContent() {
     const { isLight } = useTheme();
-
-    const [profile, setProfile] = useState<AcademicProfile>({
-        name: "User",
-        institution: "Your Institution",
-        course: "Computer Science",
-        year: "Student",
-    });
-
-    useEffect(() => {
-        try {
-            const storedProfile = localStorage.getItem(
-                "connextAcademicProfile"
-            );
-
-            if (storedProfile) {
-                const parsedProfile: AcademicProfile =
-                    JSON.parse(storedProfile);
-
-                setProfile(parsedProfile);
-            }
-        } catch (error) {
-            console.error(
-                "Unable to load academic profile:",
-                error
-            );
-        }
-    }, []);
-
-    const userName = profile.name || "User";
-    const institution =
-        profile.institution || "Your Institution";
-    const course = profile.course || "Computer Science";
-    const academicYear = profile.year || "Student";
-
-    const initials = userName
-        .split(" ")
-        .filter(Boolean)
-        .map((name) => name[0])
-        .join("")
-        .slice(0, 2)
-        .toUpperCase();
 
     return (
         <main
@@ -87,22 +34,23 @@ function StudentDashboardContent() {
                 {/* Header */}
                 <div className="flex flex-col gap-5 sm:flex-row sm:items-end sm:justify-between">
                     <div>
-                        <p className="text-sm text-gray-500">
+                        <p
+                            className={`text-sm ${isLight ? "text-gray-500" : "text-gray-500"
+                                }`}
+                        >
                             Good morning 👋
                         </p>
 
                         <h1 className="mt-1 text-3xl font-bold tracking-tight sm:text-4xl">
-                            Welcome to Connext
+                            Welcome back, Professor
                         </h1>
 
                         <p
-                            className={`mt-2 max-w-2xl text-sm leading-6 ${isLight
-                                ? "text-gray-600"
-                                : "text-gray-400"
+                            className={`mt-2 max-w-2xl text-sm leading-6 ${isLight ? "text-gray-600" : "text-gray-400"
                                 }`}
                         >
-                            Connect, learn, contribute, and build your
-                            academic reputation.
+                            Mentor students, manage your academic community,
+                            and contribute knowledge.
                         </p>
                     </div>
 
@@ -131,10 +79,10 @@ function StudentDashboardContent() {
                     </div>
                 </div>
 
-                {/* Profile + Score */}
+                {/* Faculty Profile + Stats */}
                 <div className="mt-8 grid gap-5 lg:grid-cols-3">
 
-                    {/* Profile Card */}
+                    {/* Faculty Profile */}
                     <div
                         className={`rounded-3xl border p-6 lg:col-span-2 ${isLight
                             ? "border-gray-200 bg-white"
@@ -144,18 +92,14 @@ function StudentDashboardContent() {
                         <div className="flex flex-col gap-5 sm:flex-row sm:items-center sm:justify-between">
 
                             <div className="flex items-center gap-4">
-
-                                {/* Dynamic Initials */}
                                 <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-white text-xl font-bold text-black">
-                                    {initials || "U"}
+                                    AS
                                 </div>
 
                                 <div>
                                     <div className="flex items-center gap-2">
-
-                                        {/* Dynamic Name */}
                                         <h2 className="text-lg font-semibold">
-                                            {userName}
+                                            Alex Sharma
                                         </h2>
 
                                         <span
@@ -164,7 +108,7 @@ function StudentDashboardContent() {
                                                 : "border-white/10 bg-white/5 text-gray-400"
                                                 }`}
                                         >
-                                            Verified
+                                            Verified Faculty
                                         </span>
                                     </div>
 
@@ -174,7 +118,7 @@ function StudentDashboardContent() {
                                             : "text-gray-400"
                                             }`}
                                     >
-                                        Computer Science Engineering Student
+                                        Assistant Professor
                                     </p>
 
                                     <div
@@ -185,12 +129,12 @@ function StudentDashboardContent() {
                                     >
                                         <span className="flex items-center gap-1">
                                             <GraduationCap size={14} />
-                                            {institution}
+                                            ABC Institute of Technology
                                         </span>
 
                                         <span className="flex items-center gap-1">
-                                            <GitBranch size={14} />
-                                            {academicYear}
+                                            <BookOpen size={14} />
+                                            Computer Science
                                         </span>
                                     </div>
                                 </div>
@@ -203,7 +147,7 @@ function StudentDashboardContent() {
                                     : "border-white/10 bg-white/5 text-white hover:bg-white/10"
                                     }`}
                             >
-                                View Passport
+                                View Profile
                                 <ArrowRight size={16} />
                             </Link>
                         </div>
@@ -223,7 +167,7 @@ function StudentDashboardContent() {
                                     : "text-gray-400"
                                     }`}
                             >
-                                Contribution Score
+                                Academic Contribution
                             </p>
 
                             <Sparkles size={18} />
@@ -231,7 +175,7 @@ function StudentDashboardContent() {
 
                         <div className="mt-4 flex items-end gap-2">
                             <span className="text-4xl font-bold">
-                                165
+                                245
                             </span>
 
                             <span className="pb-1 text-xs text-gray-500">
@@ -246,22 +190,22 @@ function StudentDashboardContent() {
                                 }`}
                         >
                             <div
-                                className={`h-full w-[66%] rounded-full ${isLight ? "bg-black" : "bg-white"
+                                className={`h-full w-[78%] rounded-full ${isLight ? "bg-black" : "bg-white"
                                     }`}
                             />
                         </div>
 
                         <p className="mt-3 text-xs text-gray-500">
-                            Keep contributing to increase your reputation.
+                            Your contribution to the academic community.
                         </p>
                     </div>
                 </div>
 
-                {/* Quick Actions */}
+                {/* Faculty Quick Actions */}
                 <section className="mt-8">
                     <div className="flex items-center justify-between">
                         <h2 className="text-lg font-semibold">
-                            Quick actions
+                            Faculty actions
                         </h2>
 
                         <span
@@ -270,35 +214,36 @@ function StudentDashboardContent() {
                                 : "text-gray-600"
                                 }`}
                         >
-                            Get things done faster
+                            Manage your academic activities
                         </span>
                     </div>
 
                     <div className="mt-4 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+
                         {[
                             {
-                                icon: CircleHelp,
-                                title: "Ask a Question",
+                                icon: MessageSquare,
+                                title: "Student Questions",
                                 description:
-                                    "Ask the community without fear.",
+                                    "Answer questions from students.",
                             },
                             {
                                 icon: Users,
-                                title: "Find Collaborators",
+                                title: "Mentor Students",
                                 description:
-                                    "Find people with matching skills.",
+                                    "Connect with students who need guidance.",
                             },
                             {
                                 icon: BookOpen,
-                                title: "Explore Communities",
+                                title: "My Courses",
                                 description:
-                                    "Discover academic communities.",
+                                    "Manage your courses and resources.",
                             },
                             {
-                                icon: GraduationCap,
-                                title: "Edit Passport",
+                                icon: Briefcase,
+                                title: "Research Projects",
                                 description:
-                                    "Update your academic identity.",
+                                    "Manage projects and collaborators.",
                             },
                         ].map((item) => {
                             const Icon = item.icon;
@@ -306,11 +251,7 @@ function StudentDashboardContent() {
                             return (
                                 <Link
                                     key={item.title}
-                                    href={
-                                        item.title === "Edit Passport"
-                                            ? "/passport"
-                                            : "#"
-                                    }
+                                    href="#"
                                     className={`group rounded-2xl border p-5 transition ${isLight
                                         ? "border-gray-200 bg-white hover:bg-gray-50"
                                         : "border-white/10 bg-white/[0.04] hover:bg-white/[0.07]"
@@ -341,7 +282,7 @@ function StudentDashboardContent() {
                 {/* Main Content */}
                 <div className="mt-8 grid gap-5 lg:grid-cols-3">
 
-                    {/* Recent Activity */}
+                    {/* Student Questions */}
                     <section
                         className={`rounded-3xl border p-6 lg:col-span-2 ${isLight
                             ? "border-gray-200 bg-white"
@@ -351,11 +292,11 @@ function StudentDashboardContent() {
                         <div className="flex items-center justify-between">
                             <div>
                                 <h2 className="font-semibold">
-                                    Recent activity
+                                    Student questions
                                 </h2>
 
                                 <p className="mt-1 text-xs text-gray-500">
-                                    Your latest contributions
+                                    Questions that may need your expertise
                                 </p>
                             </div>
 
@@ -367,68 +308,61 @@ function StudentDashboardContent() {
                             </Link>
                         </div>
 
-                        <div className="mt-6 space-y-1">
+                        <div className="mt-6 space-y-3">
+
                             {[
                                 {
-                                    icon: MessageSquare,
                                     title:
-                                        "Answered a question in Computer Science",
-                                    info:
-                                        "2 hours ago · +10 contribution points",
+                                        "How does dependency injection work in Spring Boot?",
+                                    category: "Java · Spring Boot",
+                                    answers: "3 answers",
                                 },
                                 {
-                                    icon: Briefcase,
                                     title:
-                                        "Added a new project to your Passport",
-                                    info: "Yesterday · TradeOS",
+                                        "Best approach for designing a scalable REST API?",
+                                    category: "Backend · Architecture",
+                                    answers: "5 answers",
                                 },
                                 {
-                                    icon: Users,
                                     title:
-                                        "Connected with a new collaborator",
-                                    info: "2 days ago",
+                                        "How should I structure my final year project?",
+                                    category: "Projects · Guidance",
+                                    answers: "2 answers",
                                 },
-                            ].map((activity) => {
-                                const Icon = activity.icon;
+                            ].map((question) => (
+                                <div
+                                    key={question.title}
+                                    className={`rounded-2xl border p-4 transition ${isLight
+                                        ? "border-gray-200 hover:bg-gray-50"
+                                        : "border-white/10 hover:bg-white/[0.04]"
+                                        }`}
+                                >
+                                    <div className="flex items-start justify-between gap-4">
+                                        <div>
+                                            <h3 className="text-sm font-medium">
+                                                {question.title}
+                                            </h3>
 
-                                return (
-                                    <div
-                                        key={activity.title}
-                                        className={`flex items-center gap-4 rounded-2xl p-3 transition ${isLight
-                                            ? "hover:bg-gray-50"
-                                            : "hover:bg-white/[0.04]"
-                                            }`}
-                                    >
-                                        <div
-                                            className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-xl ${isLight
-                                                ? "bg-gray-100"
-                                                : "bg-white/10"
-                                                }`}
-                                        >
-                                            <Icon size={17} />
-                                        </div>
-
-                                        <div className="min-w-0 flex-1">
-                                            <p className="text-sm">
-                                                {activity.title}
+                                            <p className="mt-2 text-xs text-gray-500">
+                                                {question.category}
                                             </p>
 
                                             <p className="mt-1 text-xs text-gray-500">
-                                                {activity.info}
+                                                {question.answers}
                                             </p>
                                         </div>
 
                                         <ChevronRight
-                                            size={16}
-                                            className="text-gray-500"
+                                            size={17}
+                                            className="shrink-0 text-gray-500"
                                         />
                                     </div>
-                                );
-                            })}
+                                </div>
+                            ))}
                         </div>
                     </section>
 
-                    {/* Recommended */}
+                    {/* Pending Activities */}
                     <section
                         className={`rounded-3xl border p-6 ${isLight
                             ? "border-gray-200 bg-white"
@@ -438,61 +372,37 @@ function StudentDashboardContent() {
                         <div className="flex items-center justify-between">
                             <div>
                                 <h2 className="font-semibold">
-                                    Recommended
+                                    Pending activities
                                 </h2>
 
                                 <p className="mt-1 text-xs text-gray-500">
-                                    Based on your interests
+                                    Things that need your attention
                                 </p>
                             </div>
 
-                            <Sparkles size={17} />
+                            <Bell size={17} />
                         </div>
 
                         <div className="mt-5 space-y-3">
+
                             {[
-                                {
-                                    initials: "RV",
-                                    name: "Rahul Verma",
-                                    skills: "React · TypeScript",
-                                },
-                                {
-                                    initials: "MS",
-                                    name: "Meera Shah",
-                                    skills: "AI · Python · Research",
-                                },
-                            ].map((person) => (
+                                "Review student collaboration request",
+                                "Approve research project invitation",
+                                "Respond to student question",
+                            ].map((item) => (
                                 <div
-                                    key={person.name}
+                                    key={item}
                                     className={`rounded-2xl border p-4 ${isLight
                                         ? "border-gray-200 bg-gray-50"
                                         : "border-white/10 bg-white/[0.03]"
                                         }`}
                                 >
-                                    <div className="flex items-center gap-3">
-                                        <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-black text-xs font-bold text-white">
-                                            {person.initials}
-                                        </div>
+                                    <p className="text-sm">
+                                        {item}
+                                    </p>
 
-                                        <div className="min-w-0">
-                                            <p className="truncate text-sm font-medium">
-                                                {person.name}
-                                            </p>
-
-                                            <p className="text-xs text-gray-500">
-                                                {person.skills}
-                                            </p>
-                                        </div>
-                                    </div>
-
-                                    <button
-                                        className={`mt-3 flex w-full items-center justify-center gap-2 rounded-lg border py-2 text-xs transition ${isLight
-                                            ? "border-gray-200 bg-white text-gray-700 hover:bg-gray-100"
-                                            : "border-white/10 bg-white/5 text-gray-300 hover:bg-white/10"
-                                            }`}
-                                    >
-                                        Connect
-                                        <Plus size={14} />
+                                    <button className="mt-3 text-xs font-medium text-gray-500 transition hover:text-black dark:hover:text-white">
+                                        Review →
                                     </button>
                                 </div>
                             ))}
@@ -500,7 +410,7 @@ function StudentDashboardContent() {
                     </section>
                 </div>
 
-                {/* Bottom CTA */}
+                {/* Faculty Contribution CTA */}
                 <div
                     className={`mt-8 rounded-3xl border p-6 sm:p-8 ${isLight
                         ? "border-gray-200 bg-white"
@@ -513,14 +423,14 @@ function StudentDashboardContent() {
                                 <Sparkles size={18} />
 
                                 <h2 className="font-semibold">
-                                    Build your reputation through contribution
+                                    Share knowledge. Mentor. Contribute.
                                 </h2>
                             </div>
 
                             <p className="mt-2 max-w-2xl text-sm leading-6 text-gray-500">
-                                Every useful answer, project, collaboration,
-                                and verified contribution helps strengthen
-                                your academic identity.
+                                Help students learn, collaborate with researchers,
+                                and strengthen your academic reputation through
+                                meaningful contributions.
                             </p>
                         </div>
 
@@ -536,16 +446,15 @@ function StudentDashboardContent() {
                         </Link>
                     </div>
                 </div>
-
             </div>
         </main>
     );
 }
 
-export default function DashboardPage() {
+export default function FacultyDashboardPage() {
     return (
-        <RoleGuard allowedRole="student">
-            <StudentDashboardContent />
+        <RoleGuard allowedRole="faculty">
+            <FacultyDashboardContent />
         </RoleGuard>
     );
 }
