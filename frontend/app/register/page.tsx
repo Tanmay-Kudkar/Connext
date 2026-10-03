@@ -37,11 +37,6 @@ export default function RegisterPage() {
         }
 
         const emailLower = email.trim().toLowerCase();
-        const isAcademic = emailLower.endsWith(".edu") || emailLower.endsWith(".ac.in") || emailLower.endsWith(".edu.in");
-        if (!isAcademic) {
-            setError("Please use your official academic / institution email address (.edu, .ac.in).");
-            return;
-        }
 
         if (!password) {
             setError("Password is required.");
@@ -104,7 +99,7 @@ export default function RegisterPage() {
                                     htmlFor="email"
                                     className="mb-2 block text-sm font-medium text-gray-300"
                                 >
-                                    Academic email address (.edu / .ac.in)
+                                     Academic email address
                                 </label>
 
                                 <div className="relative">

@@ -36,16 +36,6 @@ function domainOf(email: string) {
   return email.split("@")[1]?.toLowerCase() ?? "";
 }
 
-async function isCollegeEmail(email: string) {
-  const domain = domainOf(email);
-  if (!domain) return false;
-  if (domain.endsWith(".edu") || domain.endsWith(".ac.in") || domain.endsWith(".edu.in")) {
-    return true;
-  }
-  const inst = await db.select().from(institutions);
-  return inst.some((i) => domain === i.domain || domain.endsWith(`.${i.domain}`));
-}
-
 async function institutionForEmail(email: string) {
   const domain = domainOf(email);
   const inst = await db.select().from(institutions);
@@ -66,7 +56,6 @@ export async function authRoutes(app: FastifyInstance) {
   app.post("/api/auth/request-otp", async (request) => {
     const body = z.object({ email: z.string().email() }).parse(request.body);
     const email = body.email.toLowerCase();
-    if (!(await isCollegeEmail(email))) throw Errors.collegeEmailRejected();
     rateLimit(email);
     
     const otp = generateOtp();
