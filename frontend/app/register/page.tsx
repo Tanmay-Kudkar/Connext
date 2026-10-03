@@ -16,32 +16,32 @@ export default function RegisterPage() {
     const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
     return (
-        <main className="min-h-[calc(100vh-64px)] bg-black px-6 py-12 text-white">
+        <main className="min-h-[calc(100vh-64px)] bg-gray-50 px-6 py-12 text-gray-900 transition-colors duration-200 dark:bg-black dark:text-white">
             <div className="mx-auto flex min-h-[calc(100vh-160px)] max-w-md items-center justify-center">
                 <div className="w-full">
                     {/* Header */}
                     <div className="mb-8 text-center">
-                        <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-white text-2xl text-black">
+                        <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-black text-2xl text-white shadow-md dark:bg-white dark:text-black">
                             🚀
                         </div>
 
-                        <h1 className="mt-6 text-3xl font-bold tracking-tight">
+                        <h1 className="mt-6 text-3xl font-bold tracking-tight text-gray-900 dark:text-white">
                             Create your account
                         </h1>
 
-                        <p className="mt-2 text-sm leading-6 text-gray-400">
+                        <p className="mt-2 text-sm leading-6 text-gray-600 dark:text-gray-400">
                             Start building your academic identity with Connext.
                         </p>
                     </div>
 
                     {/* Register Card */}
-                    <div className="rounded-3xl border border-white/10 bg-white/[0.04] p-6 shadow-2xl backdrop-blur-xl sm:p-8">
+                    <div className="rounded-3xl border border-gray-200 bg-white p-6 shadow-xl backdrop-blur-xl dark:border-white/10 dark:bg-white/[0.04] sm:p-8">
                         <form className="space-y-5">
                             {/* Full Name */}
                             <div>
                                 <label
                                     htmlFor="name"
-                                    className="mb-2 block text-sm font-medium text-gray-300"
+                                    className="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-300"
                                 >
                                     Full name
                                 </label>
@@ -49,14 +49,14 @@ export default function RegisterPage() {
                                 <div className="relative">
                                     <User
                                         size={18}
-                                        className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-500"
+                                        className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 dark:text-gray-500"
                                     />
 
                                     <input
                                         id="name"
                                         type="text"
                                         placeholder="Enter your full name"
-                                        className="w-full rounded-xl border border-white/10 bg-white/5 py-3 pl-11 pr-4 text-sm text-white outline-none transition placeholder:text-gray-600 focus:border-white/30 focus:bg-white/[0.07]"
+                                        className="w-full rounded-xl border border-gray-200 bg-gray-50 py-3 pl-11 pr-4 text-sm text-gray-900 outline-none transition placeholder:text-gray-400 focus:border-gray-400 focus:bg-white dark:border-white/10 dark:bg-white/5 dark:text-white dark:placeholder:text-gray-600 dark:focus:border-white/30 dark:focus:bg-white/[0.07]"
                                     />
                                 </div>
                             </div>
@@ -65,7 +65,7 @@ export default function RegisterPage() {
                             <div>
                                 <label
                                     htmlFor="email"
-                                    className="mb-2 block text-sm font-medium text-gray-300"
+                                    className="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-300"
                                 >
                                     Email address
                                 </label>
@@ -73,14 +73,14 @@ export default function RegisterPage() {
                                 <div className="relative">
                                     <Mail
                                         size={18}
-                                        className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-500"
+                                        className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 dark:text-gray-500"
                                     />
 
                                     <input
                                         id="email"
                                         type="email"
                                         placeholder="you@example.com"
-                                        className="w-full rounded-xl border border-white/10 bg-white/5 py-3 pl-11 pr-4 text-sm text-white outline-none transition placeholder:text-gray-600 focus:border-white/30 focus:bg-white/[0.07]"
+                                        className="w-full rounded-xl border border-gray-200 bg-gray-50 py-3 pl-11 pr-4 text-sm text-gray-900 outline-none transition placeholder:text-gray-400 focus:border-gray-400 focus:bg-white dark:border-white/10 dark:bg-white/5 dark:text-white dark:placeholder:text-gray-600 dark:focus:border-white/30 dark:focus:bg-white/[0.07]"
                                     />
                                 </div>
                             </div>
@@ -89,7 +89,7 @@ export default function RegisterPage() {
                             <div>
                                 <label
                                     htmlFor="password"
-                                    className="mb-2 block text-sm font-medium text-gray-300"
+                                    className="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-300"
                                 >
                                     Password
                                 </label>
@@ -97,14 +97,14 @@ export default function RegisterPage() {
                                 <div className="relative">
                                     <Lock
                                         size={18}
-                                        className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-500"
+                                        className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 dark:text-gray-500"
                                     />
 
                                     <input
                                         id="password"
                                         type={showPassword ? "text" : "password"}
                                         placeholder="Create a password"
-                                        className="w-full rounded-xl border border-white/10 bg-white/5 py-3 pl-11 pr-12 text-sm text-white outline-none transition placeholder:text-gray-600 focus:border-white/30 focus:bg-white/[0.07]"
+                                        className="w-full rounded-xl border border-gray-200 bg-gray-50 py-3 pl-11 pr-12 text-sm text-gray-900 outline-none transition placeholder:text-gray-400 focus:border-gray-400 focus:bg-white dark:border-white/10 dark:bg-white/5 dark:text-white dark:placeholder:text-gray-600 dark:focus:border-white/30 dark:focus:bg-white/[0.07]"
                                     />
 
                                     <button
@@ -113,7 +113,7 @@ export default function RegisterPage() {
                                         aria-label={
                                             showPassword ? "Hide password" : "Show password"
                                         }
-                                        className="absolute right-3 top-1/2 flex -translate-y-1/2 items-center justify-center rounded-lg p-2 text-gray-500 transition hover:bg-white/10 hover:text-white"
+                                        className="absolute right-3 top-1/2 flex -translate-y-1/2 items-center justify-center rounded-lg p-2 text-gray-400 transition hover:bg-gray-100 hover:text-black dark:text-gray-500 dark:hover:bg-white/10 dark:hover:text-white"
                                     >
                                         {showPassword ? (
                                             <EyeOff size={18} />
@@ -128,7 +128,7 @@ export default function RegisterPage() {
                             <div>
                                 <label
                                     htmlFor="confirmPassword"
-                                    className="mb-2 block text-sm font-medium text-gray-300"
+                                    className="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-300"
                                 >
                                     Confirm password
                                 </label>
@@ -136,14 +136,14 @@ export default function RegisterPage() {
                                 <div className="relative">
                                     <Lock
                                         size={18}
-                                        className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-500"
+                                        className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 dark:text-gray-500"
                                     />
 
                                     <input
                                         id="confirmPassword"
                                         type={showConfirmPassword ? "text" : "password"}
                                         placeholder="Confirm your password"
-                                        className="w-full rounded-xl border border-white/10 bg-white/5 py-3 pl-11 pr-12 text-sm text-white outline-none transition placeholder:text-gray-600 focus:border-white/30 focus:bg-white/[0.07]"
+                                        className="w-full rounded-xl border border-gray-200 bg-gray-50 py-3 pl-11 pr-12 text-sm text-gray-900 outline-none transition placeholder:text-gray-400 focus:border-gray-400 focus:bg-white dark:border-white/10 dark:bg-white/5 dark:text-white dark:placeholder:text-gray-600 dark:focus:border-white/30 dark:focus:bg-white/[0.07]"
                                     />
 
                                     <button
@@ -156,7 +156,7 @@ export default function RegisterPage() {
                                                 ? "Hide password"
                                                 : "Show password"
                                         }
-                                        className="absolute right-3 top-1/2 flex -translate-y-1/2 items-center justify-center rounded-lg p-2 text-gray-500 transition hover:bg-white/10 hover:text-white"
+                                        className="absolute right-3 top-1/2 flex -translate-y-1/2 items-center justify-center rounded-lg p-2 text-gray-400 transition hover:bg-gray-100 hover:text-black dark:text-gray-500 dark:hover:bg-white/10 dark:hover:text-white"
                                     >
                                         {showConfirmPassword ? (
                                             <EyeOff size={18} />
@@ -171,7 +171,7 @@ export default function RegisterPage() {
                             <div>
                                 <label
                                     htmlFor="role"
-                                    className="mb-2 block text-sm font-medium text-gray-300"
+                                    className="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-300"
                                 >
                                     I am a
                                 </label>
@@ -179,21 +179,21 @@ export default function RegisterPage() {
                                 <select
                                     id="role"
                                     defaultValue=""
-                                    className="w-full rounded-xl border border-white/10 bg-white/5 px-4 py-3 text-sm text-gray-300 outline-none transition focus:border-white/30 focus:bg-white/[0.07]"
+                                    className="w-full rounded-xl border border-gray-200 bg-gray-50 px-4 py-3 text-sm text-gray-900 outline-none transition focus:border-gray-400 focus:bg-white dark:border-white/10 dark:bg-white/5 dark:text-gray-300 dark:focus:border-white/30 dark:focus:bg-white/[0.07]"
                                 >
-                                    <option value="" disabled className="bg-black">
+                                    <option value="" disabled className="bg-white dark:bg-black text-gray-900 dark:text-white">
                                         Select your role
                                     </option>
-                                    <option value="student" className="bg-black">
+                                    <option value="student" className="bg-white dark:bg-black text-gray-900 dark:text-white">
                                         Student
                                     </option>
-                                    <option value="faculty" className="bg-black">
+                                    <option value="faculty" className="bg-white dark:bg-black text-gray-900 dark:text-white">
                                         Faculty
                                     </option>
-                                    <option value="researcher" className="bg-black">
+                                    <option value="researcher" className="bg-white dark:bg-black text-gray-900 dark:text-white">
                                         Researcher
                                     </option>
-                                    <option value="mentor" className="bg-black">
+                                    <option value="mentor" className="bg-white dark:bg-black text-gray-900 dark:text-white">
                                         Mentor
                                     </option>
                                 </select>
@@ -204,12 +204,12 @@ export default function RegisterPage() {
                                 <input
                                     id="terms"
                                     type="checkbox"
-                                    className="mt-1 h-4 w-4 rounded border-white/20 bg-white/5 accent-white"
+                                    className="mt-1 h-4 w-4 rounded border-gray-300 accent-black dark:border-white/20 dark:bg-white/5 dark:accent-white"
                                 />
 
                                 <label
                                     htmlFor="terms"
-                                    className="text-xs leading-5 text-gray-500"
+                                    className="text-xs leading-5 text-gray-600 dark:text-gray-400"
                                 >
                                     I agree to Connext&apos;s terms of service and privacy
                                     policy.
@@ -219,7 +219,7 @@ export default function RegisterPage() {
                             {/* Create Account */}
                             <Link
                                 href="/onboarding"
-                                className="flex w-full items-center justify-center gap-2 rounded-xl bg-white px-6 py-3.5 font-semibold text-black transition hover:bg-gray-200"
+                                className="flex w-full items-center justify-center gap-2 rounded-xl bg-black px-6 py-3.5 font-semibold text-white shadow-md transition hover:bg-gray-800 dark:bg-white dark:text-black dark:hover:bg-gray-200"
                             >
                                 Create Account
                                 <ArrowRight size={18} />
@@ -228,26 +228,26 @@ export default function RegisterPage() {
 
                         {/* Divider */}
                         <div className="my-6 flex items-center gap-4">
-                            <div className="h-px flex-1 bg-white/10" />
-                            <span className="text-xs text-gray-600">OR</span>
-                            <div className="h-px flex-1 bg-white/10" />
+                            <div className="h-px flex-1 bg-gray-200 dark:bg-white/10" />
+                            <span className="text-xs text-gray-400 dark:text-gray-600">OR</span>
+                            <div className="h-px flex-1 bg-gray-200 dark:bg-white/10" />
                         </div>
 
                         {/* Google */}
                         <button
                             type="button"
-                            className="flex w-full items-center justify-center gap-3 rounded-xl border border-white/10 bg-white/5 px-6 py-3.5 text-sm font-medium text-white transition hover:bg-white/10"
+                            className="flex w-full items-center justify-center gap-3 rounded-xl border border-gray-200 bg-gray-50 px-6 py-3.5 text-sm font-medium text-gray-800 transition hover:bg-gray-100 dark:border-white/10 dark:bg-white/5 dark:text-white dark:hover:bg-white/10"
                         >
-                            <span className="text-base">G</span>
+                            <span className="text-base font-bold">G</span>
                             Continue with Google
                         </button>
 
                         {/* Login */}
-                        <p className="mt-6 text-center text-sm text-gray-500">
+                        <p className="mt-6 text-center text-sm text-gray-600 dark:text-gray-400">
                             Already have an account?{" "}
                             <Link
                                 href="/login"
-                                className="font-medium text-white transition hover:text-gray-300"
+                                className="font-semibold text-black transition hover:underline dark:text-white"
                             >
                                 Sign in
                             </Link>
@@ -255,7 +255,7 @@ export default function RegisterPage() {
                     </div>
 
                     {/* Bottom Text */}
-                    <p className="mt-6 text-center text-xs leading-5 text-gray-600">
+                    <p className="mt-6 text-center text-xs leading-5 text-gray-500 dark:text-gray-600">
                         Create your Connext identity and start connecting with the
                         academic community.
                     </p>

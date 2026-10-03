@@ -11,44 +11,16 @@ import {
     GitBranch,
     GraduationCap,
     MessageSquare,
-    Moon,
     Plus,
     Search,
     Sparkles,
-    Sun,
     Users,
 } from "lucide-react";
-import { useEffect, useState } from "react";
-
-type Theme = "dark" | "light";
+import { useTheme } from "@/context/ThemeContext";
+import ThemeToggle from "@/components/shared/ThemeToggle";
 
 export default function DashboardPage() {
-    const [theme, setTheme] = useState<Theme>("dark");
-
-    useEffect(() => {
-        const savedTheme = localStorage.getItem("connextTheme") as Theme | null;
-
-        if (savedTheme) {
-            setTheme(savedTheme);
-            document.documentElement.classList.toggle(
-                "light",
-                savedTheme === "light"
-            );
-        }
-    }, []);
-
-    const changeTheme = (newTheme: Theme) => {
-        setTheme(newTheme);
-
-        localStorage.setItem("connextTheme", newTheme);
-
-        document.documentElement.classList.toggle(
-            "light",
-            newTheme === "light"
-        );
-    };
-
-    const isLight = theme === "light";
+    const { isLight } = useTheme();
 
     return (
         <main
@@ -84,36 +56,7 @@ export default function DashboardPage() {
                     <div className="flex items-center gap-3">
 
                         {/* Theme Toggle */}
-                        <div
-                            className={`flex items-center rounded-xl border p-1 ${isLight
-                                ? "border-gray-200 bg-white"
-                                : "border-white/10 bg-white/5"
-                                }`}
-                        >
-                            <button
-                                onClick={() => changeTheme("dark")}
-                                aria-label="Dark theme"
-                                className={`flex h-8 w-8 items-center justify-center rounded-lg transition ${theme === "dark"
-                                    ? "bg-white text-black"
-                                    : isLight
-                                        ? "text-gray-500 hover:bg-gray-100"
-                                        : "text-gray-400 hover:bg-white/10"
-                                    }`}
-                            >
-                                <Moon size={16} />
-                            </button>
-
-                            <button
-                                onClick={() => changeTheme("light")}
-                                aria-label="Light theme"
-                                className={`flex h-8 w-8 items-center justify-center rounded-lg transition ${theme === "light"
-                                    ? "bg-black text-white"
-                                    : "text-gray-400 hover:bg-white/10"
-                                    }`}
-                            >
-                                <Sun size={16} />
-                            </button>
-                        </div>
+                        <ThemeToggle variant="segmented" />
 
                         <button
                             aria-label="Search"
