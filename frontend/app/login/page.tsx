@@ -11,7 +11,6 @@ export default function LoginPage() {
         <main className="min-h-[calc(100vh-64px)] bg-black px-6 py-12 text-white">
             <div className="mx-auto flex min-h-[calc(100vh-160px)] max-w-md items-center justify-center">
                 <div className="w-full">
-                    {/* Header */}
                     <div className="mb-8 text-center">
                         <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-white text-2xl text-black">
                             🚀
@@ -26,10 +25,8 @@ export default function LoginPage() {
                         </p>
                     </div>
 
-                    {/* Login Card */}
                     <div className="rounded-3xl border border-white/10 bg-white/[0.04] p-6 shadow-2xl backdrop-blur-xl sm:p-8">
                         <form className="space-y-5">
-                            {/* Email */}
                             <div>
                                 <label
                                     htmlFor="email"
@@ -53,7 +50,6 @@ export default function LoginPage() {
                                 </div>
                             </div>
 
-                            {/* Password */}
                             <div>
                                 <div className="mb-2 flex items-center justify-between">
                                     <label
@@ -101,7 +97,6 @@ export default function LoginPage() {
                                 </div>
                             </div>
 
-                            {/* Remember Me */}
                             <div className="flex items-center gap-2">
                                 <input
                                     id="remember"
@@ -117,7 +112,6 @@ export default function LoginPage() {
                                 </label>
                             </div>
 
-                            {/* Login Button */}
                             <button
                                 type="submit"
                                 className="flex w-full items-center justify-center gap-2 rounded-xl bg-white px-6 py-3.5 font-semibold text-black transition hover:bg-gray-200"
@@ -127,14 +121,14 @@ export default function LoginPage() {
                             </button>
                         </form>
 
-                        {/* Divider */}
                         <div className="my-6 flex items-center gap-4">
                             <div className="h-px flex-1 bg-white/10" />
+
                             <span className="text-xs text-gray-600">OR</span>
+
                             <div className="h-px flex-1 bg-white/10" />
                         </div>
 
-                        {/* Google */}
                         <button
                             type="button"
                             className="flex w-full items-center justify-center gap-3 rounded-xl border border-white/10 bg-white/5 px-6 py-3.5 text-sm font-medium text-white transition hover:bg-white/10"
@@ -143,7 +137,6 @@ export default function LoginPage() {
                             Continue with Google
                         </button>
 
-                        {/* Register */}
                         <p className="mt-6 text-center text-sm text-gray-500">
                             Don&apos;t have an account?{" "}
                             <Link
@@ -155,7 +148,6 @@ export default function LoginPage() {
                         </p>
                     </div>
 
-                    {/* Bottom Text */}
                     <p className="mt-6 text-center text-xs leading-5 text-gray-600">
                         By continuing, you agree to Connext&apos;s terms and privacy
                         policy.

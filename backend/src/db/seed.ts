@@ -1,5 +1,5 @@
 import { sql } from "drizzle-orm";
-import { db, pool } from "./index.js";
+import { db, pool, isInMemoryDb } from "./index.js";
 import { migrate } from "./migrate.js";
 import {
   badges,
@@ -213,11 +213,16 @@ function generatePosts(): PostSeed[] {
 export async function seed() {
   await migrate();
 
-  await db.execute(sql`TRUNCATE TABLE
-    mock_links, reports, user_badges, badges, user_quests, quests,
-    credit_events, credit_ledger, votes, comments, posts, memberships,
-    channels, communities, users, institutions
-    RESTART IDENTITY CASCADE`);
+  const tableNames = [
+    "mock_links", "reports", "user_badges", "badges", "user_quests", "quests",
+    "credit_events", "credit_ledger", "votes", "comments", "posts", "memberships",
+    "channels", "communities", "users", "institutions"
+  ];
+  for (const table of tableNames) {
+    try {
+      await db.execute(sql.raw(`DELETE FROM ${table}`));
+    } catch (e) {}
+  }
 
   await db.insert(institutions).values(INSTITUTIONS);
   await db.insert(users).values(
@@ -279,7 +284,11 @@ export async function seed() {
       createdAt: p.createdAt,
     });
     const vec = hashEmbed(`${p.title} ${p.body}`);
-    await db.execute(sql`UPDATE posts SET embedding = ${toVectorLiteral(vec)}::vector WHERE id = ${p.id}`);
+    if (isInMemoryDb) {
+      await db.execute(sql`UPDATE posts SET embedding = ${toVectorLiteral(vec)} WHERE id = ${p.id}`);
+    } else {
+      await db.execute(sql`UPDATE posts SET embedding = ${toVectorLiteral(vec)}::vector WHERE id = ${p.id}`);
+    }
   }
 
   const cm1 = "cm1";

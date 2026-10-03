@@ -1,29 +1,22 @@
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
-import pg from "pg";
 import { buildApp } from "../app.js";
 import { pool } from "../db/index.js";
 import { migrate } from "../db/migrate.js";
 import { seed } from "../db/seed.js";
 
-const DATABASE_URL = process.env.DATABASE_URL ?? "postgres://connext:connext@localhost:5432/connext";
-
 describe("api integration", () => {
   let app: Awaited<ReturnType<typeof buildApp>>;
 
   beforeAll(async () => {
-    process.env.DATABASE_URL = DATABASE_URL;
     process.env.EMBEDDING_BASE_URL = "mock";
     process.env.DEMO_LOGINS = "true";
-    const client = new pg.Client({ connectionString: DATABASE_URL });
-    await client.connect();
-    await migrate(client);
-    await client.end();
+    await migrate(pool);
     await seed();
     app = await buildApp();
   });
 
   afterAll(async () => {
-    await app.close();
+    if (app) await app.close();
     await pool.end();
   });
 
@@ -33,6 +26,7 @@ describe("api integration", () => {
       url: "/api/auth/request-otp",
       payload: { email: "someone@gmail.com" },
     });
+    if (res.statusCode !== 400) console.log(res.json());
     expect(res.statusCode).toBe(400);
     expect(res.json().error).toBe("CollegeEmailRejectedError");
   });
@@ -48,6 +42,7 @@ describe("api integration", () => {
       url: "/api/auth/verify-otp",
       payload: { email: "tanmay@xie.edu.in", otp: "123456" },
     });
+    if (res.statusCode !== 200) console.log(res.json());
     expect(res.statusCode).toBe(200);
     expect(res.headers["set-cookie"]).toBeTruthy();
   });

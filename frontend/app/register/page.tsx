@@ -217,13 +217,13 @@ export default function RegisterPage() {
                             </div>
 
                             {/* Create Account */}
-                            <button
-                                type="submit"
+                            <Link
+                                href="/onboarding"
                                 className="flex w-full items-center justify-center gap-2 rounded-xl bg-white px-6 py-3.5 font-semibold text-black transition hover:bg-gray-200"
                             >
                                 Create Account
                                 <ArrowRight size={18} />
-                            </button>
+                            </Link>
                         </form>
 
                         {/* Divider */}
