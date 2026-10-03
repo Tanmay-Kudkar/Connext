@@ -1,12 +1,41 @@
 "use client";
 
 import { ArrowRight, GraduationCap, MapPin, User } from "lucide-react";
-import Link from "next/link";
+import { useState } from "react";
+import { useRouter } from "next/navigation";
 
 export default function OnboardingPage() {
+    const router = useRouter();
+
+    const [name, setName] = useState("");
+    const [role, setRole] = useState("");
+    const [institution, setInstitution] = useState("");
+    const [course, setCourse] = useState("");
+    const [year, setYear] = useState("");
+    const [location, setLocation] = useState("");
+
+    const handleContinue = () => {
+        const academicProfile = {
+            name,
+            role,
+            institution,
+            course,
+            year,
+            location,
+        };
+
+        localStorage.setItem(
+            "connextAcademicProfile",
+            JSON.stringify(academicProfile)
+        );
+
+        router.push("/verify");
+    };
+
     return (
         <main className="min-h-[calc(100vh-64px)] bg-black px-6 py-12 text-white">
             <div className="mx-auto max-w-2xl">
+
                 {/* Header */}
                 <div className="mb-8 text-center">
                     <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-white text-2xl text-black">
@@ -37,7 +66,14 @@ export default function OnboardingPage() {
 
                 {/* Form Card */}
                 <div className="rounded-3xl border border-white/10 bg-white/[0.04] p-6 shadow-2xl backdrop-blur-xl sm:p-8">
-                    <form className="space-y-6">
+                    <form
+                        onSubmit={(event) => {
+                            event.preventDefault();
+                            handleContinue();
+                        }}
+                        className="space-y-6"
+                    >
+
                         {/* Full Name */}
                         <div>
                             <label
@@ -56,7 +92,10 @@ export default function OnboardingPage() {
                                 <input
                                     id="name"
                                     type="text"
+                                    value={name}
+                                    onChange={(event) => setName(event.target.value)}
                                     placeholder="Enter your full name"
+                                    required
                                     className="w-full rounded-xl border border-white/10 bg-white/5 py-3 pl-11 pr-4 text-sm text-white outline-none transition placeholder:text-gray-600 focus:border-white/30 focus:bg-white/[0.07]"
                                 />
                             </div>
@@ -73,21 +112,27 @@ export default function OnboardingPage() {
 
                             <select
                                 id="role"
-                                defaultValue=""
+                                value={role}
+                                onChange={(event) => setRole(event.target.value)}
+                                required
                                 className="w-full rounded-xl border border-white/10 bg-white/5 px-4 py-3 text-sm text-gray-300 outline-none transition focus:border-white/30 focus:bg-white/[0.07]"
                             >
                                 <option value="" disabled className="bg-black">
                                     Select your role
                                 </option>
+
                                 <option value="student" className="bg-black">
                                     Student
                                 </option>
+
                                 <option value="faculty" className="bg-black">
                                     Faculty
                                 </option>
+
                                 <option value="researcher" className="bg-black">
                                     Researcher
                                 </option>
+
                                 <option value="mentor" className="bg-black">
                                     Mentor
                                 </option>
@@ -112,14 +157,21 @@ export default function OnboardingPage() {
                                 <input
                                     id="institution"
                                     type="text"
+                                    value={institution}
+                                    onChange={(event) =>
+                                        setInstitution(event.target.value)
+                                    }
                                     placeholder="Enter your college or institution"
+                                    required
                                     className="w-full rounded-xl border border-white/10 bg-white/5 py-3 pl-11 pr-4 text-sm text-white outline-none transition placeholder:text-gray-600 focus:border-white/30 focus:bg-white/[0.07]"
                                 />
                             </div>
                         </div>
 
-                        {/* Course / Department */}
+                        {/* Course / Academic Year */}
                         <div className="grid gap-5 sm:grid-cols-2">
+
+                            {/* Course */}
                             <div>
                                 <label
                                     htmlFor="course"
@@ -131,11 +183,15 @@ export default function OnboardingPage() {
                                 <input
                                     id="course"
                                     type="text"
+                                    value={course}
+                                    onChange={(event) => setCourse(event.target.value)}
                                     placeholder="e.g. Computer Engineering"
+                                    required
                                     className="w-full rounded-xl border border-white/10 bg-white/5 px-4 py-3 text-sm text-white outline-none transition placeholder:text-gray-600 focus:border-white/30 focus:bg-white/[0.07]"
                                 />
                             </div>
 
+                            {/* Academic Year */}
                             <div>
                                 <label
                                     htmlFor="year"
@@ -146,21 +202,27 @@ export default function OnboardingPage() {
 
                                 <select
                                     id="year"
-                                    defaultValue=""
+                                    value={year}
+                                    onChange={(event) => setYear(event.target.value)}
+                                    required
                                     className="w-full rounded-xl border border-white/10 bg-white/5 px-4 py-3 text-sm text-gray-300 outline-none transition focus:border-white/30 focus:bg-white/[0.07]"
                                 >
                                     <option value="" disabled className="bg-black">
                                         Select year
                                     </option>
+
                                     <option value="1" className="bg-black">
                                         1st Year
                                     </option>
+
                                     <option value="2" className="bg-black">
                                         2nd Year
                                     </option>
+
                                     <option value="3" className="bg-black">
                                         3rd Year
                                     </option>
+
                                     <option value="4" className="bg-black">
                                         4th Year
                                     </option>
@@ -186,20 +248,23 @@ export default function OnboardingPage() {
                                 <input
                                     id="location"
                                     type="text"
+                                    value={location}
+                                    onChange={(event) => setLocation(event.target.value)}
                                     placeholder="City, State"
+                                    required
                                     className="w-full rounded-xl border border-white/10 bg-white/5 py-3 pl-11 pr-4 text-sm text-white outline-none transition placeholder:text-gray-600 focus:border-white/30 focus:bg-white/[0.07]"
                                 />
                             </div>
                         </div>
 
                         {/* Continue */}
-                        <Link
-                            href="/verify"
+                        <button
+                            type="submit"
                             className="flex w-full items-center justify-center gap-2 rounded-xl bg-white px-6 py-3.5 font-semibold text-black transition hover:bg-gray-200"
                         >
                             Continue
                             <ArrowRight size={18} />
-                        </Link>
+                        </button>
                     </form>
                 </div>
 
