@@ -1,79 +1,188 @@
-import Link from "next/link";
+"use client";
 
+import { useEffect, useState } from "react";
+import Link from "next/link";
 import {
     ArrowRight,
     BadgeCheck,
+    BookOpen,
+    Briefcase,
+    CheckCircle2,
     GitBranch,
     GraduationCap,
     MapPin,
     Pencil,
+    Sparkles,
 } from "lucide-react";
 
 import ModeToggle from "@/components/shared/ModeToggle";
 
+type AcademicProfile = {
+    name?: string;
+    role?: "student" | "faculty" | "researcher" | "mentor";
+    institution?: string;
+    course?: string;
+    year?: string;
+    department?: string;
+    designation?: string;
+    researchArea?: string;
+    organization?: string;
+    expertise?: string;
+    experience?: string;
+    location?: string;
+};
+
 export default function PassportPage() {
+    const [profile, setProfile] = useState<AcademicProfile>({
+        name: "User",
+        role: "student",
+        institution: "Your Institution",
+        course: "Computer Science",
+        year: "Student",
+        department: "",
+        designation: "",
+        location: "India",
+    });
+
+    useEffect(() => {
+        try {
+            const storedProfile = localStorage.getItem(
+                "connextAcademicProfile"
+            );
+
+            if (storedProfile) {
+                const parsedProfile: AcademicProfile =
+                    JSON.parse(storedProfile);
+
+                setProfile(parsedProfile);
+            }
+        } catch (error) {
+            console.error(
+                "Unable to load academic profile:",
+                error
+            );
+        }
+    }, []);
+
+    const name = profile.name || "User";
+    const role = profile.role || "student";
+    const institution =
+        profile.institution ||
+        profile.organization ||
+        "Your Institution";
+
+    const location = profile.location || "India";
+
+    const initials = name
+        .split(" ")
+        .filter(Boolean)
+        .map((part) => part[0])
+        .join("")
+        .slice(0, 2)
+        .toUpperCase();
+
+    // ── Role-specific information ─────────────────────────────────────────────
+
+    const getRoleTitle = () => {
+        switch (role) {
+            case "faculty":
+                return profile.designation || "Faculty Member";
+
+            case "researcher":
+                return "Researcher";
+
+            case "mentor":
+                return "Mentor";
+
+            default:
+                return "Computer Science Engineering Student";
+        }
+    };
+
+    const roleTitle = getRoleTitle();
+
+    // ── Education / Academic Information ──────────────────────────────────────
+
+    const getAcademicTitle = () => {
+        switch (role) {
+            case "faculty":
+                return "Faculty Profile";
+
+            case "researcher":
+                return "Research Profile";
+
+            case "mentor":
+                return "Mentor Profile";
+
+            default:
+                return "Education";
+        }
+    };
+
     return (
-        <div className="min-h-screen bg-black px-6 py-12 text-white">
+        <main className="min-h-[calc(100vh-64px)] bg-black px-6 py-12 text-white">
             <div className="mx-auto max-w-6xl">
 
                 {/* Page Header */}
                 <div className="mb-10">
-                    <p className="mb-2 text-sm font-medium text-gray-400">
+                    <p className="text-sm text-gray-400">
                         Academic Identity
                     </p>
 
-                    <h1 className="text-4xl font-bold tracking-tight">
+                    <h1 className="mt-2 text-4xl font-bold tracking-tight">
                         Academic Passport
                     </h1>
 
-                    <p className="mt-3 max-w-2xl text-gray-400">
-                        Your verified academic identity, skills, projects, achievements,
-                        and contributions — all in one place.
+                    <p className="mt-3 max-w-3xl text-sm leading-6 text-gray-400">
+                        Your verified academic identity, skills, projects,
+                        achievements, and contributions — all in one place.
                     </p>
                 </div>
 
                 {/* Profile Header */}
-                <div className="rounded-3xl border border-white/10 bg-white/[0.04] p-6 backdrop-blur-xl sm:p-8">
-                    <div className="flex flex-col gap-6 sm:flex-row sm:items-center sm:justify-between">
+                <section className="rounded-3xl border border-white/10 bg-white/[0.03] p-6 sm:p-8">
 
-                        {/* Profile Information */}
-                        <div className="flex flex-col gap-5 sm:flex-row sm:items-center">
+                    <div className="flex flex-col gap-6 lg:flex-row lg:items-center lg:justify-between">
 
-                            {/* Avatar */}
+                        {/* Identity */}
+                        <div className="flex items-center gap-5">
+
+                            {/* Dynamic Initials */}
                             <div className="flex h-24 w-24 shrink-0 items-center justify-center rounded-full bg-white text-3xl font-bold text-black">
-                                AR
+                                {initials || "U"}
                             </div>
 
-                            {/* Details */}
                             <div>
+
                                 <div className="flex flex-wrap items-center gap-2">
+
+                                    {/* Dynamic Name */}
                                     <h2 className="text-2xl font-bold">
-                                        Alex Sharma
+                                        {name}
                                     </h2>
 
-                                    {/* Verification */}
                                     <BadgeCheck
-                                        size={22}
+                                        size={21}
                                         className="text-blue-400"
                                     />
+
                                 </div>
 
-                                <p className="mt-1 text-gray-300">
-                                    Computer Science Engineering Student
+                                {/* Dynamic Role */}
+                                <p className="mt-2 text-base text-gray-300">
+                                    {roleTitle}
                                 </p>
 
                                 <div className="mt-3 flex flex-wrap gap-4 text-sm text-gray-500">
 
-                                    {/* College */}
                                     <span className="flex items-center gap-2">
                                         <GraduationCap size={16} />
-                                        Computer Science & Engineering
+                                        {institution}
                                     </span>
 
-                                    {/* Location */}
                                     <span className="flex items-center gap-2">
                                         <MapPin size={16} />
-                                        India
+                                        {location}
                                     </span>
 
                                 </div>
@@ -81,148 +190,245 @@ export default function PassportPage() {
                         </div>
 
                         {/* Actions */}
-                        <div className="flex items-center gap-3">
+                        <div className="flex flex-wrap items-center gap-3">
 
                             <ModeToggle />
 
-                            {/* GitHub */}
                             <button
-                                aria-label="GitHub"
-                                className="flex h-10 w-10 items-center justify-center rounded-xl border border-white/10 bg-white/5 text-gray-300 transition hover:bg-white/10 hover:text-white"
+                                type="button"
+                                aria-label="Profile connections"
+                                className="flex h-11 w-11 items-center justify-center rounded-xl border border-white/10 bg-white/5 text-gray-400 transition hover:bg-white/10 hover:text-white"
                             >
                                 <GitBranch size={19} />
                             </button>
 
-                            {/* Edit Profile */}
-                            <button className="flex items-center gap-2 rounded-xl border border-white/10 bg-white/5 px-4 py-2.5 text-sm font-medium text-white transition hover:bg-white/10">
+                            <button
+                                type="button"
+                                className="flex items-center gap-2 rounded-xl border border-white/10 bg-white/5 px-4 py-2.5 text-sm font-medium text-white transition hover:bg-white/10"
+                            >
                                 <Pencil size={16} />
                                 Edit Profile
                             </button>
 
                         </div>
                     </div>
-                </div>
+                </section>
 
                 {/* Reputation Summary */}
-                <div className="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+                <section className="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
 
-                    {/* Contribution Score */}
-                    <div className="rounded-2xl border border-white/10 bg-white/[0.04] p-5">
-                        <p className="text-sm text-gray-500">
-                            Contribution Score
-                        </p>
+                    {[
+                        {
+                            label: "Contribution Score",
+                            value: "165",
+                            description: "Total points",
+                        },
+                        {
+                            label: "Questions Answered",
+                            value: "12",
+                            description: "Helpful responses",
+                        },
+                        {
+                            label: "Helpful Answers",
+                            value: "8",
+                            description: "Marked helpful",
+                        },
+                        {
+                            label: "Projects",
+                            value: "2",
+                            description: "Proof of work",
+                        },
+                    ].map((item) => (
+                        <div
+                            key={item.label}
+                            className="rounded-2xl border border-white/10 bg-white/[0.03] p-5"
+                        >
+                            <p className="text-sm text-gray-500">
+                                {item.label}
+                            </p>
 
-                        <p className="mt-2 text-2xl font-bold text-white">
-                            165
-                        </p>
+                            <p className="mt-3 text-3xl font-bold">
+                                {item.value}
+                            </p>
 
-                        <p className="mt-1 text-xs text-gray-500">
-                            Total points
-                        </p>
-                    </div>
+                            <p className="mt-1 text-xs text-gray-500">
+                                {item.description}
+                            </p>
+                        </div>
+                    ))}
 
-                    {/* Questions Answered */}
-                    <div className="rounded-2xl border border-white/10 bg-white/[0.04] p-5">
-                        <p className="text-sm text-gray-500">
-                            Questions Answered
-                        </p>
+                </section>
 
-                        <p className="mt-2 text-2xl font-bold text-white">
-                            12
-                        </p>
+                {/* Academic / Professional Information */}
+                <div className="mt-6 grid gap-6 lg:grid-cols-2">
 
-                        <p className="mt-1 text-xs text-gray-500">
-                            Helpful responses
-                        </p>
-                    </div>
+                    {/* Education / Professional */}
+                    <section className="rounded-3xl border border-white/10 bg-white/[0.03] p-6">
 
-                    {/* Helpful Answers */}
-                    <div className="rounded-2xl border border-white/10 bg-white/[0.04] p-5">
-                        <p className="text-sm text-gray-500">
-                            Helpful Answers
-                        </p>
-
-                        <p className="mt-2 text-2xl font-bold text-white">
-                            8
-                        </p>
-
-                        <p className="mt-1 text-xs text-gray-500">
-                            Marked helpful
-                        </p>
-                    </div>
-
-                    {/* Projects */}
-                    <div className="rounded-2xl border border-white/10 bg-white/[0.04] p-5">
-                        <p className="text-sm text-gray-500">
-                            Projects
-                        </p>
-
-                        <p className="mt-2 text-2xl font-bold text-white">
-                            2
-                        </p>
-
-                        <p className="mt-1 text-xs text-gray-500">
-                            Proof of work
-                        </p>
-                    </div>
-
-                </div>
-
-                {/* Passport Sections */}
-                <div className="mt-8 grid gap-6 md:grid-cols-2">
-
-                    {/* Education */}
-                    <div className="rounded-2xl border border-white/10 bg-white/[0.04] p-6">
-                        <div className="flex items-start justify-between gap-4">
+                        <div className="flex items-center justify-between">
 
                             <div>
                                 <p className="text-sm text-gray-500">
-                                    Education
+                                    {getAcademicTitle()}
                                 </p>
 
-                                <h3 className="mt-2 text-xl font-semibold">
-                                    B.E. Computer Engineering
-                                </h3>
-
-                                <p className="mt-1 text-sm text-gray-400">
-                                    ABC Institute of Technology
-                                </p>
+                                <h2 className="mt-2 text-xl font-semibold">
+                                    {role === "student"
+                                        ? profile.course ||
+                                        "Computer Science Engineering"
+                                        : role === "faculty"
+                                            ? profile.department ||
+                                            "Academic Department"
+                                            : role === "researcher"
+                                                ? profile.researchArea ||
+                                                "Research Area"
+                                                : profile.expertise ||
+                                                "Area of Expertise"}
+                                </h2>
                             </div>
 
                             <GraduationCap
-                                size={24}
-                                className="shrink-0 text-gray-400"
+                                size={23}
+                                className="text-gray-400"
                             />
+
                         </div>
 
-                        <div className="mt-5 flex flex-wrap gap-3">
-                            <span className="rounded-lg border border-white/10 bg-white/5 px-3 py-1.5 text-xs text-gray-300">
-                                2024 – 2028
-                            </span>
+                        <p className="mt-2 text-sm text-gray-400">
+                            {institution}
+                        </p>
 
-                            <span className="rounded-lg border border-white/10 bg-white/5 px-3 py-1.5 text-xs text-gray-300">
-                                3rd Year
-                            </span>
+                        {/* Student */}
+                        {role === "student" && (
+                            <div className="mt-5 flex flex-wrap gap-3">
 
-                            <span className="rounded-lg border border-white/10 bg-white/5 px-3 py-1.5 text-xs text-gray-300">
-                                CGPA 8.6
-                            </span>
-                        </div>
-                    </div>
+                                <span className="rounded-lg border border-white/10 bg-white/5 px-3 py-2 text-xs text-gray-300">
+                                    2024 – 2028
+                                </span>
+
+                                <span className="rounded-lg border border-white/10 bg-white/5 px-3 py-2 text-xs text-gray-300">
+                                    {profile.year || "Student"}
+                                </span>
+
+                                <span className="rounded-lg border border-white/10 bg-white/5 px-3 py-2 text-xs text-gray-300">
+                                    CGPA 8.6
+                                </span>
+
+                            </div>
+                        )}
+
+                        {/* Faculty */}
+                        {role === "faculty" && (
+                            <div className="mt-5 space-y-3">
+
+                                <div className="flex items-center gap-3 text-sm text-gray-400">
+                                    <BookOpen size={17} />
+                                    <span>
+                                        Department:{" "}
+                                        <span className="text-gray-200">
+                                            {profile.department ||
+                                                "Not specified"}
+                                        </span>
+                                    </span>
+                                </div>
+
+                                <div className="flex items-center gap-3 text-sm text-gray-400">
+                                    <GraduationCap size={17} />
+                                    <span>
+                                        Designation:{" "}
+                                        <span className="text-gray-200">
+                                            {profile.designation ||
+                                                "Faculty"}
+                                        </span>
+                                    </span>
+                                </div>
+
+                            </div>
+                        )}
+
+                        {/* Researcher */}
+                        {role === "researcher" && (
+                            <div className="mt-5 space-y-3">
+
+                                <div className="flex items-center gap-3 text-sm text-gray-400">
+                                    <Sparkles size={17} />
+                                    <span>
+                                        Research Area:{" "}
+                                        <span className="text-gray-200">
+                                            {profile.researchArea ||
+                                                "Not specified"}
+                                        </span>
+                                    </span>
+                                </div>
+
+                                <div className="flex items-center gap-3 text-sm text-gray-400">
+                                    <Briefcase size={17} />
+                                    <span>
+                                        Organization:{" "}
+                                        <span className="text-gray-200">
+                                            {profile.organization ||
+                                                "Not specified"}
+                                        </span>
+                                    </span>
+                                </div>
+
+                            </div>
+                        )}
+
+                        {/* Mentor */}
+                        {role === "mentor" && (
+                            <div className="mt-5 space-y-3">
+
+                                <div className="flex items-center gap-3 text-sm text-gray-400">
+                                    <Sparkles size={17} />
+                                    <span>
+                                        Expertise:{" "}
+                                        <span className="text-gray-200">
+                                            {profile.expertise ||
+                                                "Not specified"}
+                                        </span>
+                                    </span>
+                                </div>
+
+                                <div className="flex items-center gap-3 text-sm text-gray-400">
+                                    <Briefcase size={17} />
+                                    <span>
+                                        Experience:{" "}
+                                        <span className="text-gray-200">
+                                            {profile.experience ||
+                                                "Not specified"}
+                                        </span>
+                                    </span>
+                                </div>
+
+                            </div>
+                        )}
+
+                    </section>
 
                     {/* Skills */}
-                    <div className="rounded-2xl border border-white/10 bg-white/[0.04] p-6">
+                    <section className="rounded-3xl border border-white/10 bg-white/[0.03] p-6">
+
                         <div className="flex items-center justify-between">
-                            <h3 className="text-lg font-semibold">
-                                Skills
-                            </h3>
+
+                            <div>
+                                <p className="text-sm text-gray-500">
+                                    Skills
+                                </p>
+
+                                <h2 className="mt-2 text-xl font-semibold">
+                                    Core Skills
+                                </h2>
+                            </div>
 
                             <span className="text-xs text-gray-500">
                                 8 skills
                             </span>
+
                         </div>
 
-                        <div className="mt-5 flex flex-wrap gap-2">
+                        <div className="mt-6 flex flex-wrap gap-2">
+
                             {[
                                 "React",
                                 "TypeScript",
@@ -235,309 +441,211 @@ export default function PassportPage() {
                             ].map((skill) => (
                                 <span
                                     key={skill}
-                                    className="rounded-lg border border-white/10 bg-white/5 px-3 py-2 text-sm text-gray-300 transition hover:border-white/20 hover:bg-white/10 hover:text-white"
+                                    className="rounded-xl border border-white/10 bg-white/5 px-3 py-2 text-sm text-gray-300"
                                 >
                                     {skill}
                                 </span>
                             ))}
-                        </div>
-                    </div>
 
-                    {/* Projects */}
-                    <div className="rounded-2xl border border-white/10 bg-white/[0.04] p-6">
-                        <div className="flex items-center justify-between">
-                            <h3 className="text-lg font-semibold">
+                        </div>
+                    </section>
+                </div>
+
+                {/* Projects */}
+                <section className="mt-6 rounded-3xl border border-white/10 bg-white/[0.03] p-6">
+
+                    <div className="flex items-center justify-between">
+
+                        <div>
+                            <p className="text-sm text-gray-500">
+                                Proof of Work
+                            </p>
+
+                            <h2 className="mt-2 text-xl font-semibold">
                                 Projects
-                            </h3>
-
-                            <span className="text-xs text-gray-500">
-                                2 projects
-                            </span>
+                            </h2>
                         </div>
 
-                        <div className="mt-5 space-y-4">
+                        <Briefcase
+                            size={22}
+                            className="text-gray-400"
+                        />
 
-                            {/* Project 1 */}
-                            <div className="rounded-xl border border-white/10 bg-white/5 p-4">
-                                <div className="flex items-start justify-between gap-4">
-
-                                    <div>
-                                        <h4 className="font-semibold text-white">
-                                            Connext
-                                        </h4>
-
-                                        <p className="mt-1 text-sm leading-6 text-gray-400">
-                                            Academic collaboration platform connecting students,
-                                            faculty, researchers, and mentors.
-                                        </p>
-                                    </div>
-
-                                    <span className="shrink-0 rounded-lg border border-white/10 px-2.5 py-1 text-xs text-gray-400">
-                                        2026
-                                    </span>
-
-                                </div>
-
-                                <div className="mt-3 flex flex-wrap gap-2">
-                                    <span className="rounded-md bg-white/5 px-2 py-1 text-xs text-gray-400">
-                                        Next.js
-                                    </span>
-
-                                    <span className="rounded-md bg-white/5 px-2 py-1 text-xs text-gray-400">
-                                        TypeScript
-                                    </span>
-
-                                    <span className="rounded-md bg-white/5 px-2 py-1 text-xs text-gray-400">
-                                        PostgreSQL
-                                    </span>
-                                </div>
-                            </div>
-
-                            {/* Project 2 */}
-                            <div className="rounded-xl border border-white/10 bg-white/5 p-4">
-                                <div className="flex items-start justify-between gap-4">
-
-                                    <div>
-                                        <h4 className="font-semibold text-white">
-                                            TradeOS
-                                        </h4>
-
-                                        <p className="mt-1 text-sm leading-6 text-gray-400">
-                                            AI-powered personal trading operating system for
-                                            tracking, analyzing, and improving trading decisions.
-                                        </p>
-                                    </div>
-
-                                    <span className="shrink-0 rounded-lg border border-white/10 px-2.5 py-1 text-xs text-gray-400">
-                                        2026
-                                    </span>
-
-                                </div>
-
-                                <div className="mt-3 flex flex-wrap gap-2">
-                                    <span className="rounded-md bg-white/5 px-2 py-1 text-xs text-gray-400">
-                                        React
-                                    </span>
-
-                                    <span className="rounded-md bg-white/5 px-2 py-1 text-xs text-gray-400">
-                                        Spring Boot
-                                    </span>
-
-                                    <span className="rounded-md bg-white/5 px-2 py-1 text-xs text-gray-400">
-                                        AI
-                                    </span>
-                                </div>
-                            </div>
-
-                        </div>
                     </div>
 
-                    {/* Achievements */}
-                    <div className="rounded-2xl border border-white/10 bg-white/[0.04] p-6">
-                        <div className="flex items-center justify-between">
+                    <div className="mt-6 grid gap-4 md:grid-cols-2">
 
-                            <h3 className="text-lg font-semibold">
-                                Achievements
-                            </h3>
+                        <div className="rounded-2xl border border-white/10 bg-black/30 p-5">
 
-                            <span className="text-xs text-gray-500">
-                                4 achievements
-                            </span>
-
-                        </div>
-
-                        <div className="mt-5 space-y-3">
-
-                            {/* Achievement 1 */}
-                            <div className="flex items-center gap-4 rounded-xl border border-white/10 bg-white/5 p-4">
-
-                                <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-white/10 text-lg">
-                                    🏆
-                                </div>
+                            <div className="flex items-start justify-between">
 
                                 <div>
-                                    <h4 className="text-sm font-semibold text-white">
-                                        Hackathon Participant
-                                    </h4>
-
-                                    <p className="mt-1 text-xs text-gray-500">
-                                        RepoForge 2026
-                                    </p>
-                                </div>
-
-                            </div>
-
-                            {/* Achievement 2 */}
-                            <div className="flex items-center gap-4 rounded-xl border border-white/10 bg-white/5 p-4">
-
-                                <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-white/10 text-lg">
-                                    🚀
-                                </div>
-
-                                <div>
-                                    <h4 className="text-sm font-semibold text-white">
-                                        Connext Project
-                                    </h4>
+                                    <h3 className="font-semibold">
+                                        Connext
+                                    </h3>
 
                                     <p className="mt-1 text-xs text-gray-500">
                                         Academic collaboration platform
                                     </p>
                                 </div>
 
-                            </div>
-
-                            {/* Achievement 3 */}
-                            <div className="flex items-center gap-4 rounded-xl border border-white/10 bg-white/5 p-4">
-
-                                <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-white/10 text-lg">
-                                    📜
-                                </div>
-
-                                <div>
-                                    <h4 className="text-sm font-semibold text-white">
-                                        Technical Certification
-                                    </h4>
-
-                                    <p className="mt-1 text-xs text-gray-500">
-                                        Full-stack development
-                                    </p>
-                                </div>
+                                <CheckCircle2
+                                    size={18}
+                                    className="text-gray-400"
+                                />
 
                             </div>
 
-                            {/* Achievement 4 */}
-                            <div className="flex items-center gap-4 rounded-xl border border-white/10 bg-white/5 p-4">
+                            <div className="mt-4 flex flex-wrap gap-2">
 
-                                <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-white/10 text-lg">
-                                    ⭐
-                                </div>
+                                <span className="rounded-lg bg-white/5 px-2.5 py-1 text-xs text-gray-400">
+                                    Next.js
+                                </span>
 
-                                <div>
-                                    <h4 className="text-sm font-semibold text-white">
-                                        Community Contributor
-                                    </h4>
+                                <span className="rounded-lg bg-white/5 px-2.5 py-1 text-xs text-gray-400">
+                                    React
+                                </span>
 
-                                    <p className="mt-1 text-xs text-gray-500">
-                                        Academic knowledge sharing
-                                    </p>
-                                </div>
+                                <span className="rounded-lg bg-white/5 px-2.5 py-1 text-xs text-gray-400">
+                                    TypeScript
+                                </span>
 
                             </div>
-
                         </div>
+
+                        <div className="rounded-2xl border border-white/10 bg-black/30 p-5">
+
+                            <div className="flex items-start justify-between">
+
+                                <div>
+                                    <h3 className="font-semibold">
+                                        TradeOS
+                                    </h3>
+
+                                    <p className="mt-1 text-xs text-gray-500">
+                                        AI-powered personal trading system
+                                    </p>
+                                </div>
+
+                                <CheckCircle2
+                                    size={18}
+                                    className="text-gray-400"
+                                />
+
+                            </div>
+
+                            <div className="mt-4 flex flex-wrap gap-2">
+
+                                <span className="rounded-lg bg-white/5 px-2.5 py-1 text-xs text-gray-400">
+                                    React
+                                </span>
+
+                                <span className="rounded-lg bg-white/5 px-2.5 py-1 text-xs text-gray-400">
+                                    Spring Boot
+                                </span>
+
+                                <span className="rounded-lg bg-white/5 px-2.5 py-1 text-xs text-gray-400">
+                                    PostgreSQL
+                                </span>
+
+                            </div>
+                        </div>
+
+                    </div>
+                </section>
+
+                {/* Achievements */}
+                <section className="mt-6 rounded-3xl border border-white/10 bg-white/[0.03] p-6">
+
+                    <div className="flex items-center gap-2">
+                        <Sparkles size={19} />
+
+                        <h2 className="text-xl font-semibold">
+                            Achievements
+                        </h2>
                     </div>
 
-                </div>
+                    <div className="mt-5 grid gap-3 sm:grid-cols-3">
+
+                        {[
+                            "Early Contributor",
+                            "Helpful Mentor",
+                            "Project Builder",
+                        ].map((achievement) => (
+                            <div
+                                key={achievement}
+                                className="flex items-center gap-3 rounded-2xl border border-white/10 bg-white/5 p-4"
+                            >
+                                <CheckCircle2
+                                    size={18}
+                                    className="text-gray-300"
+                                />
+
+                                <span className="text-sm text-gray-300">
+                                    {achievement}
+                                </span>
+                            </div>
+                        ))}
+
+                    </div>
+                </section>
 
                 {/* Contribution History */}
-                <div className="mt-8 rounded-2xl border border-white/10 bg-white/[0.04] p-6">
+                <section className="mt-6 rounded-3xl border border-white/10 bg-white/[0.03] p-6">
 
                     <div className="flex items-center justify-between">
 
                         <div>
-                            <h3 className="text-lg font-semibold">
-                                Contribution History
-                            </h3>
-
-                            <p className="mt-1 text-sm text-gray-500">
-                                Your verified contributions across the Connext community.
+                            <p className="text-sm text-gray-500">
+                                Activity
                             </p>
+
+                            <h2 className="mt-2 text-xl font-semibold">
+                                Contribution History
+                            </h2>
                         </div>
 
-                        <span className="rounded-lg border border-white/10 bg-white/5 px-3 py-1.5 text-xs text-gray-400">
-                            165 points
-                        </span>
+                        <Sparkles
+                            size={21}
+                            className="text-gray-400"
+                        />
 
                     </div>
 
                     <div className="mt-6 space-y-4">
 
-                        {/* Contribution 1 */}
-                        <div className="flex gap-4 rounded-xl border border-white/10 bg-white/5 p-4">
-
-                            <div className="mt-1 flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-white/10">
-                                💡
-                            </div>
-
-                            <div className="flex-1">
-                                <div className="flex flex-col justify-between gap-1 sm:flex-row">
-
-                                    <h4 className="text-sm font-semibold">
-                                        Answered a database question
-                                    </h4>
-
-                                    <span className="text-xs text-gray-500">
-                                        +25 points
-                                    </span>
-
+                        {[
+                            "Answered a question in Computer Science",
+                            "Contributed to a community discussion",
+                            "Added a project to Academic Passport",
+                            "Helped another student solve a technical problem",
+                        ].map((activity, index) => (
+                            <div
+                                key={activity}
+                                className="flex items-center gap-4"
+                            >
+                                <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full border border-white/10 bg-white/5 text-xs text-gray-400">
+                                    {index + 1}
                                 </div>
 
-                                <p className="mt-1 text-xs text-gray-500">
-                                    Helped another student understand database normalization.
-                                </p>
-                            </div>
+                                <div className="flex-1">
+                                    <p className="text-sm text-gray-300">
+                                        {activity}
+                                    </p>
 
-                        </div>
-
-                        {/* Contribution 2 */}
-                        <div className="flex gap-4 rounded-xl border border-white/10 bg-white/5 p-4">
-
-                            <div className="mt-1 flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-white/10">
-                                🤝
-                            </div>
-
-                            <div className="flex-1">
-                                <div className="flex flex-col justify-between gap-1 sm:flex-row">
-
-                                    <h4 className="text-sm font-semibold">
-                                        Helped a student with React
-                                    </h4>
-
-                                    <span className="text-xs text-gray-500">
-                                        +40 points
-                                    </span>
-
+                                    <p className="mt-1 text-xs text-gray-600">
+                                        Verified contribution
+                                    </p>
                                 </div>
-
-                                <p className="mt-1 text-xs text-gray-500">
-                                    Provided guidance on React components and state management.
-                                </p>
                             </div>
-
-                        </div>
-
-                        {/* Contribution 3 */}
-                        <div className="flex gap-4 rounded-xl border border-white/10 bg-white/5 p-4">
-
-                            <div className="mt-1 flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-white/10">
-                                🚀
-                            </div>
-
-                            <div className="flex-1">
-                                <div className="flex flex-col justify-between gap-1 sm:flex-row">
-
-                                    <h4 className="text-sm font-semibold">
-                                        Contributed to Connext
-                                    </h4>
-
-                                    <span className="text-xs text-gray-500">
-                                        +100 points
-                                    </span>
-
-                                </div>
-
-                                <p className="mt-1 text-xs text-gray-500">
-                                    Contributed to the development of the Connext platform.
-                                </p>
-                            </div>
-
-                        </div>
+                        ))}
 
                     </div>
-                </div>
+                </section>
 
-                {/* Continue to Dashboard */}
+                {/* Continue */}
                 <div className="mt-8 flex justify-center">
+
                     <Link
                         href="/dashboard"
                         className="flex w-full max-w-md items-center justify-center gap-2 rounded-xl bg-white px-8 py-3.5 font-semibold text-black transition hover:bg-gray-200"
@@ -545,9 +653,10 @@ export default function PassportPage() {
                         Continue to Dashboard
                         <ArrowRight size={18} />
                     </Link>
+
                 </div>
 
             </div>
-        </div>
+        </main>
     );
 }

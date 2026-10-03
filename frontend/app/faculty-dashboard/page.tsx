@@ -1,5 +1,6 @@
 "use client";
 
+import { useEffect, useState } from "react";
 import Link from "next/link";
 import {
     ArrowRight,
@@ -9,7 +10,6 @@ import {
     ChevronRight,
     GraduationCap,
     MessageSquare,
-    Plus,
     Search,
     Sparkles,
     Users,
@@ -19,8 +19,61 @@ import { useTheme } from "@/context/ThemeContext";
 import ThemeToggle from "@/components/shared/ThemeToggle";
 import RoleGuard from "@/components/auth/RoleGuard";
 
+type FacultyProfile = {
+    name?: string;
+    role?: "student" | "faculty" | "researcher" | "mentor";
+    institution?: string;
+    department?: string;
+    designation?: string;
+    location?: string;
+};
+
 function FacultyDashboardContent() {
     const { isLight } = useTheme();
+
+    const [profile, setProfile] = useState<FacultyProfile>({
+        name: "User",
+        institution: "Your Institution",
+        department: "Your Department",
+        designation: "Faculty",
+        location: "",
+    });
+
+    useEffect(() => {
+        try {
+            const storedProfile = localStorage.getItem(
+                "connextAcademicProfile"
+            );
+
+            if (storedProfile) {
+                const parsedProfile: FacultyProfile =
+                    JSON.parse(storedProfile);
+
+                setProfile(parsedProfile);
+            }
+        } catch (error) {
+            console.error(
+                "Unable to load faculty profile:",
+                error
+            );
+        }
+    }, []);
+
+    const userName = profile.name || "User";
+    const institution =
+        profile.institution || "Your Institution";
+    const department =
+        profile.department || "Your Department";
+    const designation =
+        profile.designation || "Faculty";
+
+    const initials = userName
+        .split(" ")
+        .filter(Boolean)
+        .map((name) => name[0])
+        .join("")
+        .slice(0, 2)
+        .toUpperCase();
 
     return (
         <main
@@ -34,19 +87,18 @@ function FacultyDashboardContent() {
                 {/* Header */}
                 <div className="flex flex-col gap-5 sm:flex-row sm:items-end sm:justify-between">
                     <div>
-                        <p
-                            className={`text-sm ${isLight ? "text-gray-500" : "text-gray-500"
-                                }`}
-                        >
+                        <p className="text-sm text-gray-500">
                             Good morning 👋
                         </p>
 
                         <h1 className="mt-1 text-3xl font-bold tracking-tight sm:text-4xl">
-                            Welcome back, Professor
+                            Welcome back, {designation}
                         </h1>
 
                         <p
-                            className={`mt-2 max-w-2xl text-sm leading-6 ${isLight ? "text-gray-600" : "text-gray-400"
+                            className={`mt-2 max-w-2xl text-sm leading-6 ${isLight
+                                ? "text-gray-600"
+                                : "text-gray-400"
                                 }`}
                         >
                             Mentor students, manage your academic community,
@@ -79,7 +131,7 @@ function FacultyDashboardContent() {
                     </div>
                 </div>
 
-                {/* Faculty Profile + Stats */}
+                {/* Profile + Contribution */}
                 <div className="mt-8 grid gap-5 lg:grid-cols-3">
 
                     {/* Faculty Profile */}
@@ -92,14 +144,18 @@ function FacultyDashboardContent() {
                         <div className="flex flex-col gap-5 sm:flex-row sm:items-center sm:justify-between">
 
                             <div className="flex items-center gap-4">
-                                <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-white text-xl font-bold text-black">
-                                    AS
+
+                                {/* Dynamic Initials */}
+                                <div className="flex h-16 w-16 shrink-0 items-center justify-center rounded-2xl bg-white text-xl font-bold text-black">
+                                    {initials || "U"}
                                 </div>
 
                                 <div>
                                     <div className="flex items-center gap-2">
+
+                                        {/* Dynamic Name */}
                                         <h2 className="text-lg font-semibold">
-                                            Alex Sharma
+                                            {userName}
                                         </h2>
 
                                         <span
@@ -112,13 +168,14 @@ function FacultyDashboardContent() {
                                         </span>
                                     </div>
 
+                                    {/* Dynamic Designation */}
                                     <p
                                         className={`mt-1 text-sm ${isLight
                                             ? "text-gray-600"
                                             : "text-gray-400"
                                             }`}
                                     >
-                                        Assistant Professor
+                                        {designation}
                                     </p>
 
                                     <div
@@ -129,12 +186,12 @@ function FacultyDashboardContent() {
                                     >
                                         <span className="flex items-center gap-1">
                                             <GraduationCap size={14} />
-                                            ABC Institute of Technology
+                                            {institution}
                                         </span>
 
                                         <span className="flex items-center gap-1">
                                             <BookOpen size={14} />
-                                            Computer Science
+                                            {department}
                                         </span>
                                     </div>
                                 </div>
@@ -153,7 +210,7 @@ function FacultyDashboardContent() {
                         </div>
                     </div>
 
-                    {/* Contribution Score */}
+                    {/* Academic Contribution */}
                     <div
                         className={`rounded-3xl border p-6 ${isLight
                             ? "border-gray-200 bg-white"
@@ -201,7 +258,7 @@ function FacultyDashboardContent() {
                     </div>
                 </div>
 
-                {/* Faculty Quick Actions */}
+                {/* Faculty Actions */}
                 <section className="mt-8">
                     <div className="flex items-center justify-between">
                         <h2 className="text-lg font-semibold">
@@ -401,7 +458,10 @@ function FacultyDashboardContent() {
                                         {item}
                                     </p>
 
-                                    <button className="mt-3 text-xs font-medium text-gray-500 transition hover:text-black dark:hover:text-white">
+                                    <button
+                                        type="button"
+                                        className="mt-3 text-xs font-medium text-gray-500 transition hover:text-black dark:hover:text-white"
+                                    >
                                         Review →
                                     </button>
                                 </div>
@@ -418,6 +478,7 @@ function FacultyDashboardContent() {
                         }`}
                 >
                     <div className="flex flex-col gap-5 sm:flex-row sm:items-center sm:justify-between">
+
                         <div>
                             <div className="flex items-center gap-2">
                                 <Sparkles size={18} />
@@ -444,8 +505,10 @@ function FacultyDashboardContent() {
                             Start contributing
                             <ArrowRight size={16} />
                         </Link>
+
                     </div>
                 </div>
+
             </div>
         </main>
     );

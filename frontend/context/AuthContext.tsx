@@ -36,32 +36,48 @@ export interface AuthUser {
 interface AuthContextType {
     /** The authenticated user, or null if not logged in */
     user: AuthUser | null;
-    /** True while the initial /api/auth/me fetch is in-flight */
+
+    /** True while the current session is being resolved */
     loading: boolean;
+
     /** True if the user is logged in */
     isAuthenticated: boolean;
-    /** Shorthand: true when role === "faculty" */
+
+    /** True when role === faculty */
     isFaculty: boolean;
-    /** Shorthand: true when role === "student" */
+
+    /** True when role === student */
     isStudent: boolean;
-    /** Call after a successful login to refresh the user from the server */
+
+    /** Refresh the current authenticated user */
     refreshUser: () => Promise<void>;
-    /** Call to log the user out (hits /api/auth/logout) */
+
+    /** Start Google OAuth login */
+    loginWithGoogle: () => void;
+
+    /** Log the user out */
     logout: () => Promise<void>;
 }
 
-// ─── Helpers ─────────────────────────────────────────────────────────────────
+// ─── API ──────────────────────────────────────────────────────────────────────
 
 const API_BASE =
     process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:3000";
 
+// ─── Fetch Current User ───────────────────────────────────────────────────────
+
 async function fetchMe(): Promise<AuthUser | null> {
     try {
         const res = await fetch(`${API_BASE}/api/auth/me`, {
-            credentials: "include", // send the httpOnly session cookie
+            credentials: "include",
         });
-        if (!res.ok) return null;
+
+        if (!res.ok) {
+            return null;
+        }
+
         const data = await res.json();
+
         return (data.user as AuthUser) ?? null;
     } catch {
         return null;
@@ -70,23 +86,56 @@ async function fetchMe(): Promise<AuthUser | null> {
 
 // ─── Context ──────────────────────────────────────────────────────────────────
 
-const AuthContext = createContext<AuthContextType | undefined>(undefined);
+const AuthContext = createContext<AuthContextType | undefined>(
+    undefined
+);
 
-export function AuthProvider({ children }: { children: React.ReactNode }) {
+// ─── Provider ────────────────────────────────────────────────────────────────
+
+export function AuthProvider({
+    children,
+}: {
+    children: React.ReactNode;
+}) {
     const [user, setUser] = useState<AuthUser | null>(null);
     const [loading, setLoading] = useState(true);
 
+    // ── Refresh User ─────────────────────────────────────────────────────────
+
     const refreshUser = useCallback(async () => {
         setLoading(true);
+
         const me = await fetchMe();
+
         setUser(me);
         setLoading(false);
     }, []);
 
-    // Fetch the current user on first render (reads the session cookie)
+    // ── Check Existing Session ───────────────────────────────────────────────
+
     useEffect(() => {
         refreshUser();
     }, [refreshUser]);
+
+    // ── Google Login ─────────────────────────────────────────────────────────
+
+    const loginWithGoogle = useCallback(() => {
+        /*
+         * Redirect the browser to the backend Google OAuth endpoint.
+         *
+         * The backend is responsible for:
+         * 1. Redirecting the user to Google
+         * 2. Handling Google's callback
+         * 3. Creating the authenticated session cookie
+         * 4. Redirecting the user back to the frontend
+         *
+         * Once the frontend loads again, /api/auth/me will
+         * restore the authenticated user.
+         */
+        window.location.href = `${API_BASE}/api/auth/google`;
+    }, []);
+
+    // ── Logout ───────────────────────────────────────────────────────────────
 
     const logout = useCallback(async () => {
         try {
@@ -95,10 +144,13 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
                 credentials: "include",
             });
         } catch {
-            // ignore network errors on logout
+            // Ignore network errors during logout
         }
+
         setUser(null);
     }, []);
+
+    // ── Context Value ─────────────────────────────────────────────────────────
 
     const value: AuthContextType = {
         user,
@@ -107,14 +159,27 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         isFaculty: user?.role === "faculty",
         isStudent: user?.role === "student",
         refreshUser,
+        loginWithGoogle,
         logout,
     };
 
-    return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
+    return (
+        <AuthContext.Provider value={value}>
+            {children}
+        </AuthContext.Provider>
+    );
 }
+
+// ─── Hook ────────────────────────────────────────────────────────────────────
 
 export function useAuth(): AuthContextType {
     const ctx = useContext(AuthContext);
-    if (!ctx) throw new Error("useAuth must be used within an AuthProvider");
+
+    if (!ctx) {
+        throw new Error(
+            "useAuth must be used within an AuthProvider"
+        );
+    }
+
     return ctx;
 }
